@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume and Cover Letter Tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-container {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            min-height: 100px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: white;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+        h1 {
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .pdf-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+        }
+        .pdf-button:hover {
+            background-color: #0b7dda;
+        }
+        .file-upload {
+        margin-top: 10px;
+        padding: 8px;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        background-color: #f0f0f0;
+        }
+    
+        .file-upload input {
+        margin-top: 5px;
+        }
+    
+        .file-status {
+        margin-top: 5px;
+        font-size: 0.9em;
+        color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Resume and Cover Letter Tools</h1>
+
+    <div class="form-container">
+        <h2>Cover Letter Generator</h2>
+        <form id="coverLetterForm">
+            <div class="form-group">
+                <label for="company_name">Company Name:</label>
+                <input type="text" id="company_name" name="company_name" required>
+            </div>
+            <div class="form-group">
+                <label for="position_name_cl">Position Name:</label>
+                <input type="text" id="position_name_cl" name="position_name_cl" required>
+            </div>
+            <div class="form-group">
+                <label for="job_description">Job Description:</label>
+                <textarea id="job_description" name="job_description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="resume_content_cl">Resume Content:</label>
+                <textarea id="resume_content_cl" name="resume_content_cl" required></textarea>
+                <div class="file-upload">
+                    <label for="resume_file_cl">Or upload your resume (PDF):</label>
+                    <input type="file" id="resume_file_cl" name="resume_file_cl" accept=".pdf">
+                </div>
+            </div>
+            <button type="button" onclick="generateCoverLetter()">Generate Cover Letter</button>
+            <div class="result" id="coverLetterResult"></div>
+        </form>
+    </div>
+
+    <div class="form-container">
+        <h2>Resume Polisher</h2>
+        <form id="resumeForm">
+            <div class="form-group">
+                <label for="position_name_resume">Position Name:</label>
+                <input type="text" id="position_name_resume" name="position_name_resume" required>
+            </div>
+            <div class="form-group">
+                <label for="resume_content">Resume Content:</label>
+                <textarea id="resume_content" name="resume_content" required></textarea>
+                <div class="file-upload">
+                    <label for="resume_file">Or upload your resume (PDF):</label>
+                    <input type="file" id="resume_file" name="resume_file" accept=".pdf">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="polish_prompt">Polish Instructions (optional):</label>
+                <textarea id="polish_prompt" name="polish_prompt"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="output_format">Output Format:</label>
+                <p id="output_format" name="output_format">
+                    
+                </p>
+            </div>
+            
+            <div class="button-container">
+                <button type="button" onclick="polishResume()">Polish Resume</button>
+                <!--<button type="button" id="downloadPdfBtn" class="pdf-button" onclick="downloadPdf()">Download PDF</button>-->
+            </div>
+            <div class="result" id="resumeResult"></div>
+        </form>
+    </div>
+
+    <script>
+        async function generateCoverLetter() {
+            const companyName = document.getElementById('company_name').value;
+            const positionName = document.getElementById('position_name_cl').value;
+            const jobDescription = document.getElementById('job_description').value;
+            const resumeContent = document.getElementById('resume_content_cl').value;
+            const resultElement = document.getElementById('coverLetterResult');
+            
+            resultElement.innerText = "Generating cover letter...";
+            
+            try {
+                const response = await fetch('/api/generate-cover-letter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        company_name: companyName,
+                        position_name: positionName,
+                        job_description: jobDescription,
+                        resume_content: resumeContent
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    resultElement.innerText = `Error: ${data.error}`;
+                } else {
+                    resultElement.innerText = data.cover_letter;
+                }
+            } catch (error) {
+                resultElement.innerText = `Error: ${error.message}`;
+            }
+        }
+        
+        async function polishResume() {
+            const positionName = document.getElementById('position_name_resume').value;
+            const resumeContent = document.getElementById('resume_content').value;
+            const polishPrompt = document.getElementById('polish_prompt').value;
+            const outputFormat = document.getElementById('output_format')?.value || 'text';
+            const resultElement = document.getElementById('resumeResult');
+            const downloadBtn = document.getElementById('downloadPdfBtn');
+            
+            resultElement.innerText = "Polishing resume...";
+            //downloadBtn.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/polish-resume', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        position_name: positionName,
+                        resume_content: resumeContent,
+                        polish_prompt: polishPrompt,
+                        output_format: outputFormat
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    resultElement.innerText = `Error: ${data.error}`;
+                } else {
+                    resultElement.innerText = data.polished_resume;
+                    
+                    // Show the PDF download button if PDF is available
+                    /*if (data.pdf_available || outputFormat === 'pdf') {
+                        downloadBtn.style.display = 'block';
+                    }*/
+                }
+            } catch (error) {
+                resultElement.innerText = `Error: ${error.message}`;
+            }
+        }
+        
+        /*async function downloadPdf() {
+            const positionName = document.getElementById('position_name_resume').value;
+            const resumeContent = document.getElementById('resumeResult').innerText;
+            
+            if (!resumeContent || resumeContent.startsWith('Error') || resumeContent === 'Polishing resume...') {
+                alert('Please generate a valid resume first');
+                return;
+            }
+            
+            try {
+                // Create form data for the POST request
+                const formData = new FormData();
+                formData.append('resume_content', resumeContent);
+                formData.append('position_name', positionName);
+                
+                // Send a POST request to fetch the PDF
+                const response = await fetch('/api/download-resume-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        resume_content: resumeContent,
+                        position_name: positionName
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                // Get the PDF blob
+                const blob = await response.blob();
+                
+                // Create a URL for the blob
+                const url = window.URL.createObjectURL(blob);
+                
+                // Create a link element to download the PDF
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${positionName.replace(/\s+/g, '_')}_resume.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                alert(`Error downloading PDF: ${error.message}`);
+                console.error('Download error:', error);
+            }
+        }*/
+       // Event listeners for file inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            // For cover letter
+            if (document.getElementById('resume_file_cl')) {
+                document.getElementById('resume_file_cl').addEventListener('change', function(e) {
+                    handleFileUpload(e, 'resume_content_cl', 'resume_file_cl');
+                });
+            }
+            
+            // For resume polisher
+            if (document.getElementById('resume_file')) {
+                document.getElementById('resume_file').addEventListener('change', function(e) {
+                    handleFileUpload(e, 'resume_content', 'resume_file');
+                });
+            }
+        });
+
+        async function handleFileUpload(event, textareaId, fileInputId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Show loading indicator
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'file-status';
+            statusDiv.textContent = 'Extracting text from PDF...';
+            event.target.parentNode.appendChild(statusDiv);
+            
+            try {
+                const response = await fetch('/api/extract-pdf-text', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.error) {
+                    statusDiv.textContent = `Error: ${data.error}`;
+                    statusDiv.style.color = 'red';
+                } else {
+                    // Fill the textarea with the extracted text
+                    document.getElementById(textareaId).value = data.text;
+                    statusDiv.textContent = 'Text extracted successfully!';
+                    statusDiv.style.color = 'green';
+                    
+                    // Remove the status message after 3 seconds
+                    setTimeout(() => {
+                        statusDiv.remove();
+                    }, 3000);
+                }
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>
