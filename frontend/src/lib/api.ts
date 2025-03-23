@@ -41,3 +41,26 @@ export async function polishResume(data: {
 
   return response.json();
 }
+
+export async function extractTextFromPdf(formData: FormData): Promise<{ text: string }> {
+  console.log("Sending PDF extraction request...");
+  
+  // Log the form data to verify file is included
+  console.log("FormData contents:");
+  for (const pair of formData.entries()) {
+    console.log(pair[0] + ': ' + pair[1]);
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/api/extract-pdf-text`, {
+    method: 'POST',
+    body: formData,
+    // Don't set Content-Type header when sending FormData
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to extract text from PDF');
+  }
+  
+  return await response.json();
+}
