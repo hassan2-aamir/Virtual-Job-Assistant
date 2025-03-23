@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, jsonify, Response, make_response
 import os
 from dotenv import load_dotenv
-from src.cover_letter_generator import generate_cover_letter
-from src.resume_polisher import polish_resume, create_resume_pdf
+from AI.cover_letter_generator import generate_cover_letter
+from AI.resume_polisher import polish_resume, create_resume_pdf
 import PyPDF2
 from werkzeug.utils import secure_filename
 import tempfile
