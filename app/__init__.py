@@ -1,7 +1,7 @@
+from flask_jwt_extended import JWTManager
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config import Config  # Import the Config class
-import os
+from config import Config  # Your configuration file
 
 # Initialize the database
 db = SQLAlchemy()
@@ -19,6 +19,7 @@ def create_app():
 
     # Initialize extensions with app
     db.init_app(app)
+    jwt = JWTManager(app)
 
     # Register routes (blueprints)
     from app.routes import user_bp

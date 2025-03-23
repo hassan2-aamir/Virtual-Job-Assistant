@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from app import db
-from app.models.users import Users
+#from app.models.users import Users
 
 user_bp = Blueprint('user_bp', __name__)
 
 # Create a new user
-@user_bp.route('/', methods=['POST'])
+@user_bp.route('/register', methods=['POST'])
 def create_user():
     data = request.json
     if not data or not all(k in data for k in ('name', 'email', 'role', 'password', 'profile_picture')):

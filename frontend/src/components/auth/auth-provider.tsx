@@ -1,8 +1,10 @@
 import type React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { createUser } from '../../lib/api'; // Going up one level to 'src', then into 'lib'
 
-type UserRole = "employee" | "employer";
+
+type UserRole = 0 | 1; // 0 for "employee", 1 for "employer"
 
 interface User {
   id: string;
@@ -37,13 +39,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (name: string, email: string, password: string, role: UserRole) => {
     setIsLoading(true);
     try {
-      const response = await axios.post('/api/signup', { name, email, password, role });
-      const newUser = response.data; // Assuming the backend returns the user data
+      const response = await createUser({ name, email, password, role });
+      const newUser = response; // Assuming the backend response is directly the user object
       setUser(newUser);
-      localStorage.setItem("user", JSON.stringify(newUser));
+      localStorage.setItem("user", JSON.stringify(newUser)); // Save user data to localStorage
     } catch (error) {
       console.error("Registration failed:", error);
-      throw error;
+      throw error; // Handle registration error
     } finally {
       setIsLoading(false);
     }
@@ -69,14 +71,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("user");
   };
 
+ 
+  // Switch role function (0 for employee, 1 for employer)
   const switchRole = () => {
     if (!user) return;
 
-    const newRole = user.role === "employee" ? "employer" : "employee";
+    const newRole: UserRole = user.role === 0 ? 1 : 0; // Toggle role between 0 (employee) and 1 (employer)
     const updatedUser = { ...user, role: newRole };
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-  }
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser)); // Save updated user in localStorage
+  };
 
   return (
     <AuthContext.Provider value={{ user, isLoading, register, login, logout, switchRole }}>

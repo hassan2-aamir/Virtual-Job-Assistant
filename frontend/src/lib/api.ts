@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/config";
+import axios from "axios";
 
 export async function generateCoverLetter(data: {
   company_name: string;
@@ -71,7 +72,7 @@ export async function createUser(data:{
   name: string;
   email: string;
   role: number;
-  password_hash?: string;
+  password?: string;
   profile_picture?: string;
   signup_date?: string;
   last_login?: string;
