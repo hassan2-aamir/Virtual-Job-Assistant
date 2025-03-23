@@ -1,40 +1,45 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { useAuth } from "../components/auth/auth-provider"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../components/auth/auth-provider";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const { login } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<"employee" | "employer">("employee")
-  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"employee" | "employer">("employee");
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
     try {
-      await login(email, password, activeTab)
-      navigate(activeTab === "employee" ? "/employee/search-jobs" : "/employer/my-jobs")
+      await login(email, password, activeTab);
+      navigate(activeTab === "employee" ? "/employee/search-jobs" : "/employer/my-jobs");
     } catch (error: any) {
-      setError(error.message || "Login failed")
+      setError(error.message || "Login failed");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -67,23 +72,23 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
+
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign in"}
                 </Button>
@@ -91,16 +96,16 @@ export default function LoginPage() {
             </form>
           </Tabs>
         </CardContent>
+
         <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
+          <p>
             Don't have an account?{" "}
-            <Link to="/signup" className="text-primary font-medium hover:underline">
+            <Link to="/signup" className="text-blue-600 hover:underline">
               Sign up
             </Link>
           </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-

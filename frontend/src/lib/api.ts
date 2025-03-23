@@ -64,3 +64,27 @@ export async function extractTextFromPdf(formData: FormData): Promise<{ text: st
   
   return await response.json();
 }
+
+
+export async function createUser(data:{
+  id?: number;
+  name: string;
+  email: string;
+  role: number;
+  password_hash?: string;
+  profile_picture?: string;
+  signup_date?: string;
+  last_login?: string;
+}){
+  const response = await fetch(`${API_BASE_URL}/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+},
+body: JSON.stringify(data),
+});
+if (!response.ok) {
+  throw new Error(`Error: ${response.statusText}`);
+}
+return response.json();
+}

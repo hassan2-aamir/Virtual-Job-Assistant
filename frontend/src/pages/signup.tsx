@@ -3,6 +3,8 @@ import type React from "react"
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../components/auth/auth-provider"
+
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,6 +16,8 @@ import { CheckCircle2 } from "lucide-react"
 export default function SignupPage() {
   const navigate = useNavigate()
   const { register } = useAuth()
+  const [role, setRole] = useState<"employee" | "employer">("employee")
+
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -24,6 +28,9 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
+    // Set the role based on the active tab
+    // Set the role based on the active tab
+
     e.preventDefault()
     setError(null)
 
@@ -138,6 +145,7 @@ export default function SignupPage() {
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isLoading}>
+
                     {isLoading ? "Creating account..." : "Create account"}
                   </Button>
                 </div>
@@ -157,4 +165,3 @@ export default function SignupPage() {
     </div>
   )
 }
-
