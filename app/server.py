@@ -1,8 +1,8 @@
-from flask import Flask,Blueprint, render_template, request, jsonify, Response, make_response
+from flask import Flask, Blueprint, render_template, request, jsonify, Response, make_response
 import os
 from dotenv import load_dotenv
-from AI.cover_letter_generator import generate_cover_letter
-from AI.resume_polisher import polish_resume, create_resume_pdf
+from app.AI.cover_letter_generator import generate_cover_letter  # Use app.AI instead of AI
+from app.AI.resume_polisher import polish_resume, create_resume_pdf  # Use app.AI instead of AI
 import PyPDF2
 from werkzeug.utils import secure_filename
 import tempfile
