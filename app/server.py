@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, Response, make_response
+from flask import Flask,Blueprint, render_template, request, jsonify, Response, make_response
 import os
 from dotenv import load_dotenv
 from AI.cover_letter_generator import generate_cover_letter
@@ -11,12 +11,12 @@ from flask_cors import CORS
 # Load environment variables
 load_dotenv()
 
-app = Flask(__name__)
+ai_bp = Blueprint("ai_bp", __name__)
 
 # Enable cross-origin requests (CORS)
-CORS(app)
+CORS(ai_bp)
 
-@app.route('/api/generate-cover-letter', methods=['POST'])
+@ai_bp.route('/api/generate-cover-letter', methods=['POST'])
 def cover_letter_api():
     data = request.json
     
@@ -39,7 +39,7 @@ def cover_letter_api():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/polish-resume', methods=['POST'])
+@ai_bp.route('/api/polish-resume', methods=['POST'])
 def resume_api():
     data = request.json
     
@@ -69,7 +69,7 @@ def resume_api():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/download-resume-pdf', methods=['POST'])
+@ai_bp.route('/api/download-resume-pdf', methods=['POST'])
 def download_resume_pdf():
     data = request.json
     
@@ -90,7 +90,7 @@ def download_resume_pdf():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/extract-pdf-text', methods=['POST'])
+@ai_bp.route('/api/extract-pdf-text', methods=['POST'])
 def extract_pdf_text():
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
@@ -124,4 +124,4 @@ def extract_pdf_text():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    ai_bp.run(debug=True, port=5000)

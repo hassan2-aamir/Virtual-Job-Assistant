@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from config import Config
 from app.routes.user_routes import user_bp
+from app.server import ai_bp
 from app import db  # Import db from the app module
 
 
@@ -22,6 +23,7 @@ CORS(app)
 
 # Register blueprints (routes)
 app.register_blueprint(user_bp)
+app.register_blueprint(ai_bp)
 
 # Run the app
 if __name__ == '__main__':
