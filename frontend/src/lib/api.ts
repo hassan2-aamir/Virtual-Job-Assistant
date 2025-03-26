@@ -163,3 +163,150 @@ export async function switchUserRole(userId: string, newRole: UserRole) {
     throw error;
   }
 }
+
+// Add these functions to your existing api.ts file
+
+// Resume Types
+export interface ResumeContactInfo {
+  name: string;
+  email: string;
+  phone: string;
+  website?: string;
+  linkedin?: string;
+  github?: string;
+}
+
+export interface ResumeExperience {
+  company: string;
+  position: string;
+  date: string;
+  description: string[];
+}
+
+export interface ResumeProject {
+  name: string;
+  url?: string;
+  date?: string;
+  description: string[];
+}
+
+export interface ResumeEducation {
+  institution: string;
+  degree: string;
+  date: string;
+}
+
+export interface Resume {
+  id?: number;
+  employee_id: number;
+  contact: ResumeContactInfo;
+  skills: string[];
+  experiences: ResumeExperience[];
+  certifications: string[];
+  projects: ResumeProject[];
+  education: ResumeEducation[];
+  pdf_resume?: string;
+}
+
+// Get user's resume
+export async function getResume(userId: string | number) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/resumes/employee/${userId}`);
+    
+    if (response.status === 404) {
+      return null; // No resume found
+    }
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch resume');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching resume:', error);
+    throw error;
+  }
+}
+
+// Create a new resume
+export async function createResume(resumeData: Resume) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/resumes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(resumeData),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create resume');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating resume:', error);
+    throw error;
+  }
+}
+
+// Update existing resume
+export async function updateResume(resumeId: number, resumeData: Partial<Resume>) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/resumes/${resumeId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(resumeData),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update resume');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating resume:', error);
+    throw error;
+  }
+}
+
+// Download resume as PDF
+export async function downloadResumeAsPdf(resumeId: number) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/resumes/${resumeId}/pdf`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/pdf',
+      },
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to download resume');
+    }
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create and trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'resume.pdf';
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    return true;
+  } catch (error) {
+    console.error('Error downloading resume:', error);
+    throw error;
+  }
+}
