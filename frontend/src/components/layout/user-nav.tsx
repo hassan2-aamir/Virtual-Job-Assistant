@@ -34,8 +34,7 @@ export function UserNav() {
 
   const handleChangePassword = () => {
     // Implement change password functionality
-    alert("Change password functionality would go here")
-    navigate("/changePassword")
+    navigate("/changepassword")
   }
 
   const initials = user.name

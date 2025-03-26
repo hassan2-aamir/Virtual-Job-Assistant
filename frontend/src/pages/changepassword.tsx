@@ -1,8 +1,6 @@
-"use client";
-
 import React, { useState } from "react";
 import { useAuth } from "../components/auth/auth-provider";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,80 +19,44 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
-export default function TabsDemo() {
-
+export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const { handleChangePassword } = useAuth();
+  const navigate = useNavigate();
 
-  const handleChangePassword = async () => {
+  const onChangePassword = async () => {
+    if (!currentPassword || !newPassword) {
+      setMessage("Both current and new passwords are required");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
     try {
-      const token = localStorage.getItem("token"); // Get token from storage
-      const response = await fetch("/api/change-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Password change failed.");
-      }
-
-      setMessage("Password updated successfully! Please log in again.");
-      localStorage.removeItem("token"); // Remove token to force logout
+      console.log("Attempting to change password...");
+      await handleChangePassword(currentPassword, newPassword);
+      setMessage("Password updated successfully! Redirecting to login...");
       setTimeout(() => {
-        window.location.href = "/login"; // Redirect to login
+        navigate("/login");
       }, 2000);
     } catch (error: any) {
-      setMessage(error.message);
+      console.error("Password change error:", error);
+      setMessage(error.message || "Failed to change password");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Tabs defaultValue="account" className="w-[400px]">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="account">Account</TabsTrigger>
-        <TabsTrigger value="password">Password</TabsTrigger>
+    <Tabs defaultValue="password" className="w-[400px] mx-auto mt-10">
+      <TabsList className="grid w-full grid-cols-1">
+        <TabsTrigger value="password">Change Password</TabsTrigger>
       </TabsList>
 
-      {/* Account Tab */}
-      <TabsContent value="account">
-        <Card>
-          <CardHeader>
-            <CardTitle>Account</CardTitle>
-            <CardDescription>Update your account details here.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-1">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" defaultValue="Pedro Duarte" />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" defaultValue="@peduarte" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button>Save changes</Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-
-      {/* Password Change Tab */}
       <TabsContent value="password">
         <Card>
           <CardHeader>
@@ -123,13 +85,13 @@ export default function TabsDemo() {
               />
             </div>
             {message && (
-              <p className={`text-sm mt-2 ${message.includes("failed") ? "text-red-500" : "text-green-500"}`}>
+              <p className={`text-sm mt-2 ${message.includes("Failed") ? "text-red-500" : "text-green-500"}`}>
                 {message}
               </p>
             )}
           </CardContent>
           <CardFooter>
-            <Button onClick={handleChangePassword} disabled={loading}>
+            <Button onClick={onChangePassword} disabled={loading} className="w-full">
               {loading ? "Updating..." : "Save Password"}
             </Button>
           </CardFooter>

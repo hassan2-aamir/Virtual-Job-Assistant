@@ -313,20 +313,24 @@ export async function downloadResumeAsPdf(resumeId: number) {
 
 
 export async function changePassword(currentPassword: string, newPassword: string) {
-  const token = localStorage.getItem("token"); // Retrieve the authentication token
+  const token = localStorage.getItem("token");
 
   const response = await fetch(`${API_BASE_URL}/change-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`, // Send auth token for verification
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ currentPassword, newPassword }),
+    body: JSON.stringify({ 
+      currentPassword: currentPassword,  // Change to camelCase to match backend
+      newPassword: newPassword           // Change to camelCase to match backend
+    }),
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Failed to change password");
+    const errorData = await response.json().catch(() => ({}));
+    console.error("Change password error details:", errorData);
+    throw new Error(errorData.message || errorData.error || "Failed to change password");
   }
 
   return response.json();

@@ -18,7 +18,8 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   login: (email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
-  switchRole: () => Promise<void>; // Updated to return a Promise
+  switchRole: () => Promise<void>;
+  handleChangePassword: (currentPassword: string, newPassword: string) => Promise<void>; // Add this line
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -136,25 +137,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
   
+  
 
   async function handleChangePassword(currentPassword: string, newPassword: string) {
     try {
       await changePassword(currentPassword, newPassword);
-      alert("Password changed successfully! Please log in again.");
-      logout(); // ✅ Logs out after password change
+      return Promise.resolve(); // Return successful promise for the component to handle
     } catch (error: any) {
-      alert(error.message || "Failed to change password");
+      return Promise.reject(error); // Return the error for the component to handle
     }
   }
   
   
-  return (
-    <AuthContext.Provider value={{ user, isLoading, register, login, logout, switchRole }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  // Find the return statement in AuthProvider (around line 150)
+return (
+  <AuthContext.Provider value={{ 
+    user, 
+    isLoading, 
+    register, 
+    login, 
+    logout, 
+    switchRole,
+    handleChangePassword // Add this line
+  }}>
+    {children}
+  </AuthContext.Provider>
+);
 }
-
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

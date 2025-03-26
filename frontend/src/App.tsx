@@ -55,7 +55,6 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/" element={<Navigate to="/login" replace />} />
-
       {/* Employee Routes */}
       <Route
         path="/employee"
@@ -86,11 +85,9 @@ function App() {
       </Route>
 
       <Route
-        path="/change-password"
+        path="/changepassword"
         element={
-          <ProtectedRoute>
             <ChangePasswordPage />
-          </ProtectedRoute>
         }
       />
       {/* Catch all */}

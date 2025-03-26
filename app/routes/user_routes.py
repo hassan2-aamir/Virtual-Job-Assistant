@@ -146,8 +146,12 @@ def update_user_role(user_id):
 
 
 @user_bp.route("/change-password", methods=["POST"])
+@jwt_required()  
 def change_password():
     data = request.json
+    currentPassword = data.get("currentPassword")
+    newPassword = data.get("newPassword")
+    
     current_user_id = get_jwt_identity()  # Get the current user's ID from the JWT
     user = User.query.get(current_user_id)  # Fetch the user from the database
     if not user:
@@ -158,11 +162,11 @@ def change_password():
         return jsonify({'error': 'Current password and new password are required'}), 400
 
     # Check if the current password is correct
-    if not user.check_password(data['currentPassword']):
+    if not user.check_password(currentPassword):
         return jsonify({'error': 'Current password is incorrect'}), 401
 
     # Update the password
-    user.set_password(data['newPassword'])
+    user.set_password(newPassword)
     db.session.commit()  # Save changes to the database
 
     return jsonify({'message': 'Password updated successfully'}), 200
