@@ -3,7 +3,7 @@ from app import db
 from app.models.user import User  # Import the 'User' model correctly
 from flask_cors import CORS
 import logging
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 
 # Create a Blueprint for the 'users' routes
 user_bp = Blueprint('user_bp', __name__)
@@ -106,26 +106,20 @@ def login():
             'id': user.id,
             'name': user.name,
             'email': user.email,
-            'role': role_name,  # Send role as string
+            'role': role_name,
             'profile_picture': user.profile_picture
         }
         
+        # Generate JWT token
+        token = create_access_token(identity=user.id)
+        
         current_app.logger.info(f"User logged in successfully: {user.id}")
-        return jsonify(user_data), 200
+        return jsonify({'user': user_data, 'token': token}), 200
         
     except Exception as e:
         current_app.logger.error(f"Error during login: {str(e)}")
         return jsonify({'error': f'Login failed: {str(e)}'}), 500
     
-# GET route to get a single user by ID
-@user_bp.route('/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    user = User.query.get(user_id)  # Use 'User' model instead of 'users'
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-    user_data = {'id': user.id, 'name': user.name, 'email': user.email, 'role': user.role, 'profile_picture': user.profile_picture}
-    return jsonify(user_data)
-
 # PATCH route to update a user's role
 @user_bp.route("/users/<int:user_id>/role", methods=["PATCH"])
 def update_user_role(user_id):

@@ -62,13 +62,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       // Use the new loginUser function
-      const loggedInUser = await loginUser(email, password);
+      const response = await loginUser(email, password);
       
-
-       // Debug: Log the loggedInUser and the expected role
-       console.log("Logged in user:", loggedInUser);
-       console.log("Expected role:", role);
-
+      // Debug: Log the response
+      console.log("Login response:", response);
+      
+      // Extract user and token from response
+      const { user: loggedInUser, token } = response;
+      
+      // Debug: Log the loggedInUser and the expected role
+      console.log("Logged in user:", loggedInUser);
+      console.log("Expected role:", role);
+      
+      // Save token to localStorage
+      if (token) {
+        localStorage.setItem("token", token);
+      } else {
+        console.error("No token received from server");
+      }
+  
       // Verify role matches requested role
       if (loggedInUser.role !== role) {
         throw new Error(`You don't have ${role} access. Please use the correct account type.`);
@@ -76,10 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setUser(loggedInUser);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
-
       
-    // Debug: Log when the user is set successfully
-    console.log("User logged in and role is correct.");
+      // Debug: Log when the user is set successfully
+      console.log("User logged in and role is correct.");
     } catch (error) {
       console.error("Login failed:", error);
       throw error;

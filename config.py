@@ -1,6 +1,6 @@
 class Config:
     # URI for the MySQL Database
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:1735@localhost:3306/job_finder'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:abcxyz123098@localhost:3306/job_finder'
     
     # Disable SQLAlchemy event system to save memory and improve performance
     SQLALCHEMY_TRACK_MODIFICATIONS = False

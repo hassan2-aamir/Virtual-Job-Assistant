@@ -5,7 +5,9 @@ from app.routes.user_routes import user_bp
 from app.server import ai_bp
 from app.routes.resume_routes import resume_bp
 from app import db  # Import db from the app module
+from flask_jwt_extended import JWTManager
 
+jwt = JWTManager()  # Initialize the JWTManager separately
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -15,6 +17,7 @@ app.config.from_object(Config)
 
 # Bind the db to the app (the initialization is handled in app/__init__.py)
 db.init_app(app)
+jwt.init_app(app)  # Initialize the JWTManager with the Flask app
 
 # Debug: Print the SQLALCHEMY_DATABASE_URI
 print("SQLALCHEMY_DATABASE_URI:", app.config['SQLALCHEMY_DATABASE_URI'])
