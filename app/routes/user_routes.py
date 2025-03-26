@@ -15,6 +15,13 @@ ROLE_MAP = {
     # Add other roles as needed
 }
 
+# Inverse mapping for returning role names to the frontend
+ROLE_NAME_MAP = {
+    1: 'employee',
+    2: 'employer'
+}
+
+
 @user_bp.route('/users', methods=['POST'])
 def create_user():
     data = request.json
@@ -86,3 +93,40 @@ def get_user(user_id):
         return jsonify({'error': 'User not found'}), 404
     user_data = {'id': user.id, 'name': user.name, 'email': user.email, 'role': user.role, 'profile_picture': user.profile_picture}
     return jsonify(user_data)
+
+@user_bp.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    
+    # Ensure required fields are present
+    if not data or 'email' not in data or 'password' not in data:
+        current_app.logger.error("Missing email or password in login request")
+        return jsonify({'error': 'Email and password are required'}), 400
+    
+    try:
+        # Find the user by email
+        user = User.query.filter_by(email=data['email']).first()
+        
+        # Check if user exists and password is correct
+        if not user or not user.check_password(data['password']):
+            current_app.logger.error(f"Invalid login attempt for email: {data['email']}")
+            return jsonify({'error': 'Invalid email or password'}), 401
+        
+        # Convert role from integer to string for frontend
+        role_name = ROLE_NAME_MAP.get(user.role, 'unknown')
+        
+        # Create user data to return
+        user_data = {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'role': role_name,  # Send role as string (employee/employer)
+            'profile_picture': user.profile_picture
+        }
+        
+        current_app.logger.info(f"User logged in successfully: {user.id}")
+        return jsonify(user_data), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error during login: {str(e)}")
+        return jsonify({'error': f'Login failed: {str(e)}'}), 500

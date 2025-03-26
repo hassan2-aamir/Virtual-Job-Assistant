@@ -2,9 +2,10 @@ import type React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { createUser } from '../../lib/api'; // Going up one level to 'src', then into 'lib'
+import { loginUser } from "../../lib/api";
 
 
-type UserRole = 0 | 1; // 0 for "employee", 1 for "employer"
+export type UserRole = 0 | 1; // 0 for "employee", 1 for "employer"
 
 interface User {
   id: string;
@@ -54,8 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string, role: UserRole) => {
     setIsLoading(true);
     try {
-      const response = await axios.post('/api/signin', { name: email, password });
-      const loggedInUser = response.data; // Assuming the backend returns the user data and access token
+      // Use the new loginUser function
+      const loggedInUser = await loginUser(email, password);
+      
+      // Verify role matches requested role
+      if (loggedInUser.role !== role) {
+        throw new Error(`You don't have ${role} access. Please use the correct account type.`);
+      }
+      
       setUser(loggedInUser);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
     } catch (error) {
