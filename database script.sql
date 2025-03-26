@@ -29,10 +29,11 @@ CREATE TABLE jobs (
 CREATE TABLE resumes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     employee_id INT,
+    contact TEXT,
     skills TEXT,
     experiences TEXT,
     certifications TEXT,
-    portfolio JSON, -- Stores labeled portfolio links
+    projects TEXT, -- Stores labeled portfolio links
     education TEXT,
     pdf_resume VARCHAR(255), -- Stores file path
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

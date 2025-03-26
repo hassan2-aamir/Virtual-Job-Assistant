@@ -169,29 +169,6 @@ export default function ResumePolisherPage() {
               <p className="text-sm text-muted-foreground">Optional: Provide instructions to guide the AI</p>
             </div>
             
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <ClipboardList className="h-4 w-4" /> Output Format
-              </label>
-              <RadioGroup
-                value={formData.output_format}
-                onValueChange={handleRadioChange}
-                className="flex space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="text" id="r1" />
-                  <Label htmlFor="r1">Text</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="markdown" id="r2" />
-                  <Label htmlFor="r2">Markdown</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="html" id="r3" />
-                  <Label htmlFor="r3">HTML</Label>
-                </div>
-              </RadioGroup>
-            </div>
             
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? (
