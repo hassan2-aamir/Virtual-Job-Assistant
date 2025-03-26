@@ -111,7 +111,7 @@ def login():
         }
         
         # Generate JWT token
-        token = create_access_token(identity=user.id)
+        token = create_access_token(identity=str(user.id))
         
         current_app.logger.info(f"User logged in successfully: {user.id}")
         return jsonify({'user': user_data, 'token': token}), 200
@@ -148,11 +148,16 @@ def update_user_role(user_id):
 @user_bp.route("/change-password", methods=["POST"])
 @jwt_required()  
 def change_password():
+
+    current_user_id = get_jwt_identity()  # Get the current user's ID from the JWT
+    if not isinstance(current_user_id, str):
+        return jsonify({"msg": "Subject must be a string"}), 422
+
     data = request.json
     currentPassword = data.get("currentPassword")
     newPassword = data.get("newPassword")
     
-    current_user_id = get_jwt_identity()  # Get the current user's ID from the JWT
+
     user = User.query.get(current_user_id)  # Fetch the user from the database
     if not user:
         return jsonify({'error': 'User not found'}), 404
