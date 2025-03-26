@@ -24,7 +24,7 @@ def create_app():
 
     # Register routes (blueprints)
     from app.routes import user_bp
-    app.register_blueprint(user_bp, url_prefix='/user-bp')
+    app.register_blueprint(user_bp)
 
     # Add error handling here (optional)
     @app.errorhandler(404)
