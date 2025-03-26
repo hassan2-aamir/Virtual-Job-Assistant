@@ -152,11 +152,19 @@ def download_resume_pdf(resume_id):
         skills_data = json.loads(resume.skills) if resume.skills else []
         
         # Extract the required fields for create_resume_pdf
+        # Use name from contact data or user name as fallback
+        name = contact_data.get('name', user.name)
+        # Get social media links
         social_media1 = contact_data.get('linkedin', '')
         social_media2 = contact_data.get('github', '')
         
         # Position name (title for the resume)
-        position_name = f"{user.name}'s Resume"
+        position_name = f"{name}'s Resume"
+        
+        # Include email and phone in the position_name to display at the top
+        email = contact_data.get('email', user.email)  # Use user email as fallback
+        phone = contact_data.get('phone', '')
+        
         
         # Generate PDF with all required arguments
         pdf_content = create_resume_pdf(
@@ -167,19 +175,21 @@ def download_resume_pdf(resume_id):
             experience_data,
             certifications_data,
             projects_data,
-            skills_data
+            skills_data,
+            email=contact_data.get('email', user.email),
+            phone=contact_data.get('phone', '')
         )
         
         # Prepare response
         response = make_response(pdf_content)
         response.headers.set('Content-Type', 'application/pdf')
-        response.headers.set('Content-Disposition', f'attachment; filename="{user.name.replace(" ", "_")}_resume.pdf"')
+        response.headers.set('Content-Disposition', f'attachment; filename="{name.replace(" ", "_")}_resume.pdf"')
         
         return response
     except Exception as e:
         current_app.logger.error(f"Error generating PDF: {str(e)}")
         return jsonify({'error': f'Error generating PDF: {str(e)}'}), 500
-
+    
 # Delete a resume
 @resume_bp.route('/api/resumes/<int:resume_id>', methods=['DELETE'])
 def delete_resume(resume_id):

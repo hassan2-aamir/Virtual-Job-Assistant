@@ -4,7 +4,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from io import BytesIO
 
-def create_resume_pdf(position_name, social_media1, social_media2, education, experience, certifications, projects, skills):
+def create_resume_pdf(position_name, social_media1, social_media2, education, experience, certifications, projects, skills, email='', phone=''):
     """
     Creates a PDF resume using the provided details.
     
@@ -17,6 +17,8 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
         certifications (list): List of certifications
         projects (list): List of projects
         skills (list): List of skills
+        email (str): Email address
+        phone (str): Phone number
     
     Returns:
         bytes: PDF content as bytes
@@ -32,7 +34,8 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
         parent=styles['Title'],
         fontSize=18,
         textColor=colors.darkblue,
-        spaceAfter=12
+        spaceAfter=6,
+        spaceBefore=0
     )
     
     # Section heading style
@@ -49,7 +52,13 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
     
     # Add title
     elements.append(Paragraph(position_name, title_style))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 6))
+    
+    # Add contact information
+    if email:
+        elements.append(Paragraph(f"Email: {email}", normal_style))
+    if phone:
+        elements.append(Paragraph(f"Phone: {phone}", normal_style))
     
     # Add social media links
     if social_media1:
@@ -57,14 +66,13 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
     if social_media2:
         elements.append(Paragraph(f"GitHub: {social_media2}", normal_style))
     
-    elements.append(Spacer(1, 12))
-    
+    elements.append(Spacer(1, 6))
     # Add Skills section
     if skills:
         elements.append(Paragraph("Skills", heading_style))
         skill_text = ", ".join(skills)
         elements.append(Paragraph(skill_text, normal_style))
-        elements.append(Spacer(1, 12))
+        elements.append(Spacer(1, 6))
     
     # Add Experience section
     if experience:
@@ -81,9 +89,9 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
                 if desc.strip():  # Only add non-empty descriptions
                     elements.append(Paragraph(f"• {desc}", normal_style))
             
-            elements.append(Spacer(1, 6))
+            elements.append(Spacer(1, 3))
         
-        elements.append(Spacer(1, 6))
+        elements.append(Spacer(1, 3))
     
     # Add Education section
     if education:
@@ -95,7 +103,7 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
             
             elements.append(Paragraph(f"<b>{degree}</b> from {institution}, {date}", normal_style))
         
-        elements.append(Spacer(1, 12))
+        elements.append(Spacer(1, 6))
     
     # Add Projects section
     if projects:
@@ -118,9 +126,9 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
                 if desc.strip():  # Only add non-empty descriptions
                     elements.append(Paragraph(f"• {desc}", normal_style))
             
-            elements.append(Spacer(1, 6))
+            elements.append(Spacer(1, 3))
         
-        elements.append(Spacer(1, 6))
+        elements.append(Spacer(1, 3))
     
     # Add Certifications section
     if certifications:
@@ -129,7 +137,7 @@ def create_resume_pdf(position_name, social_media1, social_media2, education, ex
             if isinstance(cert, str) and cert.strip():
                 elements.append(Paragraph(f"• {cert}", normal_style))
         
-        elements.append(Spacer(1, 12))
+        elements.append(Spacer(1, 6))
     
     # Build the PDF
     doc.build(elements)
