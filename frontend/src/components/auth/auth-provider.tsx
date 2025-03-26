@@ -110,7 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(updatedUser); // Update user state
       localStorage.setItem("user", JSON.stringify(updatedUser)); // Save updated user in localStorage
   
-      alert("ROLE HAS BEEN SWITCHED SUCCESSFULLY");
+      alert("ROLE HAS BEEN SWITCHED SUCCESSFULLY. You will be logged out.");
+      logout(); // Log out the user after switching roles
+
   
       navigate("/login");
       
