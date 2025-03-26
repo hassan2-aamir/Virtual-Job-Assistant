@@ -26,13 +26,19 @@ export default function LoginPage() {
   const [activeTab, setActiveTab] = useState<"employee" | "employer">("employee");
   const [error, setError] = useState<string | null>(null);
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-
+  
     try {
       await login(email, password, activeTab);
+      // Debug: log the state after login to confirm user details
+      console.log("Logged in successfully: ", email, activeTab);
+      console.log("Navigating to: ", activeTab === "employee" ? "/employee/search-jobs" : "/employer/my-jobs");
+      
+      // Navigate based on role
       navigate(activeTab === "employee" ? "/employee/search-jobs" : "/employer/my-jobs");
     } catch (error: any) {
       setError(error.message || "Login failed");

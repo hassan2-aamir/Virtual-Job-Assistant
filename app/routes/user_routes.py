@@ -1,26 +1,23 @@
 from flask import Blueprint, request, jsonify, current_app
 from app import db
-from app.models.user import User  # Use 'User' instead of 'users'
+from app.models.user import User  # Import the 'User' model correctly
 from flask_cors import CORS
 import logging
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 # Create a Blueprint for the 'users' routes
 user_bp = Blueprint('user_bp', __name__)
 
 # Enable CORS for the 'user_bp' Blueprint
 CORS(user_bp)
-ROLE_MAP = {
-    'employee': 1,
-    'employer': 2,
-    # Add other roles as needed
-}
 
-# Inverse mapping for returning role names to the frontend
-ROLE_NAME_MAP = {
-    1: 'employee',
-    2: 'employer'
-}
+# Define role strings for consistency
+ROLE_EMPLOYEE = 'employee'
+ROLE_EMPLOYER = 'employer'
+ROLE_NAME_MAP = {ROLE_EMPLOYEE: 'employee', ROLE_EMPLOYER: 'employer'}
 
+# Create a mapping from role strings to their database representations
+ROLE_MAP = {ROLE_EMPLOYEE: 'employee', ROLE_EMPLOYER: 'employer'}
 
 @user_bp.route('/users', methods=['POST'])
 def create_user():
@@ -39,11 +36,9 @@ def create_user():
         return jsonify({'error': 'Email already exists'}), 400
 
     try:
-        # Convert role from name to integer if it's a valid name
-        role_name = data['role'].lower()  # Make sure to handle the input as lowercase
-        role = ROLE_MAP.get(role_name)
-
-        if role is None:
+        # Ensure role is valid
+        role_name = data['role'].lower()
+        if role_name not in ROLE_MAP:
             current_app.logger.error(f"Invalid role value: {data['role']}")
             return jsonify({'error': 'Invalid role value'}), 400
 
@@ -51,7 +46,7 @@ def create_user():
         user = User(
             name=data['name'],
             email=data['email'],
-            role=role,  # Store the role as an integer
+            role=role_name,  # Store the role as a string
             profile_picture=data.get('profile_picture', '')  # Default to empty string if not provided
         )
 
@@ -77,22 +72,13 @@ def create_user():
 
         return jsonify({'error': f'Registration failed: {str(e)}'}), 500
 
+
 # GET route to get all users
 @user_bp.route('/', methods=['GET'])
 def get_users():
     users = User.query.all()  # Use 'User' model instead of 'users'
     users_data = [{'id': u.id, 'name': u.name, 'email': u.email, 'role': u.role, 'profile_picture': u.profile_picture} for u in users]
     return jsonify(users_data)
-
-
-# GET route to get a single user by ID
-@user_bp.route('/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    user = User.query.get(user_id)  # Use 'User' model instead of 'users'
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-    user_data = {'id': user.id, 'name': user.name, 'email': user.email, 'role': user.role, 'profile_picture': user.profile_picture}
-    return jsonify(user_data)
 
 @user_bp.route('/login', methods=['POST'])
 def login():
@@ -112,15 +98,15 @@ def login():
             current_app.logger.error(f"Invalid login attempt for email: {data['email']}")
             return jsonify({'error': 'Invalid email or password'}), 401
         
-        # Convert role from integer to string for frontend
-        role_name = ROLE_NAME_MAP.get(user.role, 'unknown')
+        # Send role as string (employee/employer)
+        role_name = user.role
         
         # Create user data to return
         user_data = {
             'id': user.id,
             'name': user.name,
             'email': user.email,
-            'role': role_name,  # Send role as string (employee/employer)
+            'role': role_name,  # Send role as string
             'profile_picture': user.profile_picture
         }
         
@@ -130,3 +116,36 @@ def login():
     except Exception as e:
         current_app.logger.error(f"Error during login: {str(e)}")
         return jsonify({'error': f'Login failed: {str(e)}'}), 500
+    
+# GET route to get a single user by ID
+@user_bp.route('/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = User.query.get(user_id)  # Use 'User' model instead of 'users'
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    user_data = {'id': user.id, 'name': user.name, 'email': user.email, 'role': user.role, 'profile_picture': user.profile_picture}
+    return jsonify(user_data)
+
+# PATCH route to update a user's role
+@user_bp.route("/users/<int:user_id>/role", methods=["PATCH"])
+def update_user_role(user_id):
+    new_role = request.json.get("role")
+    print(f"Received new role: {new_role}")  # Log the received role
+
+    # Ensure the new role is valid
+    if new_role not in [ROLE_EMPLOYEE, ROLE_EMPLOYER]:
+        return {"error": "Invalid role. Only 'employee' or 'employer' are allowed."}, 400
+
+    # Proceed with the update
+    user = User.query.get(user_id)
+    if user:
+        user.role = new_role  # Update the role to the string value
+        try:
+            db.session.commit()  # Save changes to the database
+            return {"message": "Role updated successfully."}, 200
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of an error
+            print(f"Error occurred: {e}")
+            return {"error": str(e)}, 500
+    else:
+        return {"error": "User not found."}, 404

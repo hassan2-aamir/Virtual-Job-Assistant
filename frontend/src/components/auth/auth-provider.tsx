@@ -1,11 +1,8 @@
 import type React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import { createUser } from '../../lib/api'; // Going up one level to 'src', then into 'lib'
-import { loginUser } from "../../lib/api";
-
-
-export type UserRole = 0 | 1; // 0 for "employee", 1 for "employer"
+import { createUser, loginUser, switchUserRole } from "../../lib/api"; // Importing the functions
+import { useNavigate } from 'react-router-dom';  // Add this import
+export type UserRole = "employee" | "employer"; // Updated to use string values
 
 interface User {
   id: string;
@@ -20,7 +17,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   login: (email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
-  switchRole: () => void;
+  switchRole: () => Promise<void>; // Updated to return a Promise
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +26,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+
+    // Initialize useNavigate hook
+    const navigate = useNavigate();
+
+
+
+  
+  // Check for the stored user data on component mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -58,6 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Use the new loginUser function
       const loggedInUser = await loginUser(email, password);
       
+
+       // Debug: Log the loggedInUser and the expected role
+       console.log("Logged in user:", loggedInUser);
+       console.log("Expected role:", role);
+
       // Verify role matches requested role
       if (loggedInUser.role !== role) {
         throw new Error(`You don't have ${role} access. Please use the correct account type.`);
@@ -65,6 +75,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setUser(loggedInUser);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
+
+      
+    // Debug: Log when the user is set successfully
+    console.log("User logged in and role is correct.");
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -77,19 +91,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem("user");
   };
-
  
-  // Switch role function (0 for employee, 1 for employer)
-  const switchRole = () => {
+
+  const switchRole = async () => {
     if (!user) return;
-
-    const newRole: UserRole = user.role === 0 ? 1 : 0; // Toggle role between 0 (employee) and 1 (employer)
-    const updatedUser = { ...user, role: newRole };
-
-    setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser)); // Save updated user in localStorage
+  
+    // Only switch role if the current role is not the same as the requested one
+    const newRole: UserRole = user.role === "employee" ? "employer" : "employee";
+  
+    // Prevent switching to the same role
+    if (user.role === newRole) {
+      alert(`You are already logged in as an ${newRole}.`);
+      return;
+    }
+  
+    try {
+      const updatedUser = await switchUserRole(user.id, newRole);
+      setUser(updatedUser); // Update user state
+      localStorage.setItem("user", JSON.stringify(updatedUser)); // Save updated user in localStorage
+  
+      alert("ROLE HAS BEEN SWITCHED SUCCESSFULLY");
+  
+      // Navigate to the corresponding page after role switch
+      if (newRole === "employee") {
+        navigate("/employee/search-jobs");
+      } else {
+        navigate("/employer/my-jobs");
+      }
+    } catch (error) {
+      console.error('Failed to switch role:', error); // Log the error if the API call fails
+      alert("Failed to switch role. Please try again later.");
+    }
   };
-
+  
+  
   return (
     <AuthContext.Provider value={{ user, isLoading, register, login, logout, switchRole }}>
       {children}

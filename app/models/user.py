@@ -6,7 +6,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # ID as Integer
     name = db.Column(db.String(255), unique=True, nullable=False)  # Name as VARCHAR(255)
     email = db.Column(db.String(255), unique=True, nullable=False)  # Email as VARCHAR(255)
-    role = db.Column(db.SmallInteger, nullable=False)  # Role as SMALLINT
+    role = db.Column(db.String(255), nullable=False)  # Role as SMALLINT
     password_hash = db.Column(db.String(255), nullable=False)  # Hashed password as VARCHAR(255)
     profile_picture = db.Column(db.String(55), nullable=True, default='')  # Profile picture as VARCHAR(55)
     signup_date = db.Column(db.TIMESTAMP, default=db.func.current_timestamp(), nullable=False)  # Timestamp for signup
@@ -19,3 +19,5 @@ class User(db.Model):
     # Check password hash
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+  

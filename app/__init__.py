@@ -1,11 +1,12 @@
-from flask_jwt_extended import JWTManager
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config import Config  # Your configuration file
+from flask_jwt_extended import JWTManager
 import os
+from config import Config
 
-# Initialize the database
+# Initialize the database and JWTManager
 db = SQLAlchemy()
+jwt = JWTManager()  # Initialize the JWTManager separately
 
 def create_app():
     # Create Flask app instance
@@ -20,11 +21,14 @@ def create_app():
 
     # Initialize extensions with app
     db.init_app(app)
-    jwt = JWTManager(app)
+    jwt.init_app(app)  # Initialize the JWTManager with the Flask app
 
-    # Register routes (blueprints)
-    from app.routes import user_bp
+    # Register blueprints (routes)
+    from app.routes.user_routes import user_bp
+    from app.server import ai_bp
+
     app.register_blueprint(user_bp)
+    app.register_blueprint(ai_bp)
 
     # Add error handling here (optional)
     @app.errorhandler(404)
