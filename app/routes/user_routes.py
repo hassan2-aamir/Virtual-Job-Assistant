@@ -149,3 +149,26 @@ def update_user_role(user_id):
             return {"error": str(e)}, 500
     else:
         return {"error": "User not found."}, 404
+
+
+@user_bp.route("/change-password", methods=["POST"])
+def change_password():
+    data = request.json
+    current_user_id = get_jwt_identity()  # Get the current user's ID from the JWT
+    user = User.query.get(current_user_id)  # Fetch the user from the database
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Ensure required fields are present
+    if not data or 'currentPassword' not in data or 'newPassword' not in data:
+        return jsonify({'error': 'Current password and new password are required'}), 400
+
+    # Check if the current password is correct
+    if not user.check_password(data['currentPassword']):
+        return jsonify({'error': 'Current password is incorrect'}), 401
+
+    # Update the password
+    user.set_password(data['newPassword'])
+    db.session.commit()  # Save changes to the database
+
+    return jsonify({'message': 'Password updated successfully'}), 200

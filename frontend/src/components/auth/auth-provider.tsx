@@ -2,6 +2,7 @@ import type React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 import { createUser, loginUser, switchUserRole } from "../../lib/api"; // Importing the functions
 import { useNavigate } from 'react-router-dom';  // Add this import
+import { changePassword } from "../../lib/api"; // Import the new function
 export type UserRole = "employee" | "employer"; // Updated to use string values
 
 interface User {
@@ -90,6 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token"); // Clear token
+    window.location.href = "/login"; // Redirect to login
   };
  
 
@@ -121,6 +124,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       alert("Failed to switch role. Please try again later.");
     }
   };
+  
+
+  async function handleChangePassword(currentPassword: string, newPassword: string) {
+    try {
+      await changePassword(currentPassword, newPassword);
+      alert("Password changed successfully! Please log in again.");
+      logout(); // ✅ Logs out after password change
+    } catch (error: any) {
+      alert(error.message || "Failed to change password");
+    }
+  }
   
   
   return (

@@ -310,3 +310,24 @@ export async function downloadResumeAsPdf(resumeId: number) {
     throw error;
   }
 }
+
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const token = localStorage.getItem("token"); // Retrieve the authentication token
+
+  const response = await fetch(`${API_BASE_URL}/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // Send auth token for verification
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to change password");
+  }
+
+  return response.json();
+}

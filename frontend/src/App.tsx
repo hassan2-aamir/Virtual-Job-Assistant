@@ -7,6 +7,8 @@ import { useAuth } from "./components/auth/auth-provider"
 import { AppLayout } from "./components/layout/app-layout"
 import LoginPage from "./pages/login"
 import SignupPage from "./pages/signup"
+import ChangePasswordPage from "./pages/changepassword";
+
 
 // Employee pages
 import SearchJobsPage from "./pages/employee/search-jobs"
@@ -18,6 +20,7 @@ import CoverLetterGeneratorPage from "./pages/employee/cover-letter-generator"
 // Employer pages
 import AddJobsPage from "./pages/employer/add-jobs"
 import MyJobsPage from "./pages/employer/my-jobs"
+
 
 // Protected route component
 function ProtectedRoute({
@@ -82,11 +85,19 @@ function App() {
         <Route path="my-jobs" element={<MyJobsPage />} />
       </Route>
 
+      <Route
+        path="/change-password"
+        element={
+          <ProtectedRoute>
+            <ChangePasswordPage />
+          </ProtectedRoute>
+        }
+      />
       {/* Catch all */}
+
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )
 }
 
 export default App
-

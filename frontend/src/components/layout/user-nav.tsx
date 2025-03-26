@@ -14,8 +14,9 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { LogOut, KeyRound, RefreshCw } from "lucide-react"
 
+
 export function UserNav() {
-  const { user, logout, switchRole } = useAuth()
+  const { user,logout, switchRole } = useAuth()
   const navigate = useNavigate()
 
   if (!user) return null
@@ -34,6 +35,7 @@ export function UserNav() {
   const handleChangePassword = () => {
     // Implement change password functionality
     alert("Change password functionality would go here")
+    navigate("/changePassword")
   }
 
   const initials = user.name
