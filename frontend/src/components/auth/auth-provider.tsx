@@ -112,12 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
       alert("ROLE HAS BEEN SWITCHED SUCCESSFULLY");
   
-      // Navigate to the corresponding page after role switch
-      if (newRole === "employee") {
-        navigate("/employee/search-jobs");
-      } else {
-        navigate("/employer/my-jobs");
-      }
+      navigate("/login");
+      
     } catch (error) {
       console.error('Failed to switch role:', error); // Log the error if the API call fails
       alert("Failed to switch role. Please try again later.");
