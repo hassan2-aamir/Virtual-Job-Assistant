@@ -1,4 +1,4 @@
-# SE_Project
+# Virtual Job Assistant
 
 This repository contains a comprehensive project designed to assist users in building, polishing, and managing resumes and cover letters. The project is built with a modern tech stack, including React, TypeScript, Vite, and Python, and integrates AI-powered tools for resume enhancement.
 
