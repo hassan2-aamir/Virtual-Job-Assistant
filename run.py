@@ -4,6 +4,7 @@ from config import Config
 from app.routes.user_routes import user_bp
 from app.server import ai_bp
 from app.routes.resume_routes import resume_bp
+from app.routes.job_routes import job_bp
 from app import db  # Import db from the app module
 from flask_jwt_extended import JWTManager
 
@@ -29,6 +30,7 @@ CORS(app)
 app.register_blueprint(user_bp)
 app.register_blueprint(ai_bp)
 app.register_blueprint(resume_bp)
+app.register_blueprint(job_bp)
 # Run the app
 if __name__ == '__main__':
     app.run(debug=True)

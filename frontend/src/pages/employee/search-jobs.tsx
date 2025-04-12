@@ -1,21 +1,200 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import React, { useState, useEffect } from 'react'
+import { getJobs, applyForJob, Job } from '@/lib/api'
+import { Button, Card, Input, Select, Space, Typography, message, Modal, Form, Spin } from 'antd'
+import { SearchOutlined } from '@ant-design/icons'
 
-export default function SearchJobsPage() {
+const { Title, Text, Paragraph } = Typography
+const { TextArea } = Input
+const { Option } = Select
+
+const SearchJobsPage: React.FC = () => {
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTitle, setSearchTitle] = useState('')
+  const [searchLocation, setSearchLocation] = useState('')
+  const [searchJobType, setSearchJobType] = useState('')
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+  const [applyModalVisible, setApplyModalVisible] = useState(false)
+  const [applying, setApplying] = useState(false)
+  const [form] = Form.useForm()
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true)
+      const filters: { title?: string; location?: string; job_type?: string } = {}
+      if (searchTitle) filters.title = searchTitle
+      if (searchLocation) filters.location = searchLocation
+      if (searchJobType) filters.job_type = searchJobType
+      
+      const jobsData = await getJobs(filters)
+      setJobs(jobsData)
+    } catch (error) {
+      message.error('Failed to fetch jobs')
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchJobs()
+  }, [])
+
+  const handleSearch = () => {
+    fetchJobs()
+  }
+
+  const handleApply = (job: Job) => {
+    setSelectedJob(job)
+    setApplyModalVisible(true)
+  }
+
+  const handleApplySubmit = async () => {
+    if (!selectedJob) return
+    
+    try {
+      setApplying(true)
+      const values = await form.validateFields()
+      await applyForJob(selectedJob.id as number, values.coverLetter)
+      message.success('Application submitted successfully!')
+      setApplyModalVisible(false)
+      form.resetFields()
+    } catch (error) {
+      if (error instanceof Error) {
+        message.error(`Failed to apply: ${error.message}`)
+      } else {
+        message.error('Failed to apply for job')
+      }
+      console.error(error)
+    } finally {
+      setApplying(false)
+    }
+  }
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Search Jobs</h1>
-      <p className="text-muted-foreground">Explore and browse job postings as an employee.</p>
+    <div className="p-6">
+      <Title level={2}>Search Jobs</Title>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Job Search</CardTitle>
-          <CardDescription>Find your next opportunity</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>Job search functionality will be implemented here.</p>
-        </CardContent>
-      </Card>
+      <div className="bg-white p-4 rounded shadow mb-6">
+        <Space direction="vertical" size="middle" className="w-full">
+            <Space wrap>
+            <Input
+              placeholder="Job Title"
+              value={searchTitle}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTitle(e.target.value)}
+              style={{ width: 200 }}
+              prefix={<SearchOutlined />}
+            />
+            <Input
+              placeholder="Location"
+              value={searchLocation}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchLocation(e.target.value)}
+              style={{ width: 200 }}
+            />
+            <Select<string>
+              placeholder="Job Type"
+              value={searchJobType}
+              onChange={(value: string) => setSearchJobType(value)}
+              style={{ width: 150 }}
+              allowClear
+            >
+              <Option value="Full-time">Full-time</Option>
+              <Option value="Part-time">Part-time</Option>
+              <Option value="Contract">Contract</Option>
+              <Option value="Internship">Internship</Option>
+            </Select>
+            <Button type="primary" onClick={handleSearch}>
+              Search
+            </Button>
+            </Space>
+        </Space>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {jobs.length === 0 ? (
+            <div className="text-center py-8">
+              <Text>No jobs found matching your criteria.</Text>
+            </div>
+          ) : (
+            jobs.map((job) => (
+              <Card key={job.id} className="w-full">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <Title level={4}>{job.title}</Title>
+                    <Text strong>{job.company}</Text>
+                    <div className="mt-1">
+                      <Text type="secondary">{job.location}</Text>
+                      {job.job_type && (
+                        <Text type="secondary" className="ml-4">
+                          {job.job_type}
+                        </Text>
+                      )}
+                      {job.salary && (
+                        <Text type="secondary" className="ml-4">
+                          {job.salary}
+                        </Text>
+                      )}
+                    </div>
+                  </div>
+                  <Button type="primary" onClick={() => handleApply(job)}>
+                    Apply
+                  </Button>
+                </div>
+                <Paragraph className="mt-4" ellipsis={{ rows: 3, expandable: true, symbol: 'more' }}>
+                  {job.description}
+                </Paragraph>
+                {job.requirements && (
+                  <div className="mt-2">
+                    <Text strong>Requirements:</Text>
+                    <Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+                      {job.requirements}
+                    </Paragraph>
+                  </div>
+                )}
+                <Text type="secondary" className="text-xs">
+                  Posted: {new Date(job.created_at || '').toLocaleDateString()}
+                </Text>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
+
+      <Modal
+        title="Apply for Job"
+        open={applyModalVisible}
+        onCancel={() => setApplyModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setApplyModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" loading={applying} onClick={handleApplySubmit}>
+            Submit Application
+          </Button>,
+        ]}
+      >
+        {selectedJob && (
+          <Form form={form} layout="vertical">
+            <div className="mb-4">
+              <Text strong>Job:</Text> {selectedJob.title} at {selectedJob.company}
+            </div>
+            <Form.Item
+              name="coverLetter"
+              label="Cover Letter (Optional)"
+              rules={[{ required: false }]}
+            >
+              <TextArea rows={6} placeholder="Introduce yourself and explain why you're a good fit for this position..." />
+            </Form.Item>
+          </Form>
+        )}
+      </Modal>
     </div>
   )
 }
 
+export default SearchJobsPage

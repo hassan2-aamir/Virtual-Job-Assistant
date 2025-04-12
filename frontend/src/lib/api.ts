@@ -335,3 +335,213 @@ export async function changePassword(currentPassword: string, newPassword: strin
 
   return response.json();
 }
+
+// Job Types
+export interface Job {
+  id?: number
+  title: string
+  company: string
+  location?: string
+  job_type?: string
+  salary?: string
+  description: string
+  requirements?: string
+  is_active?: boolean
+  created_at?: string
+  application_count?: number
+}
+
+
+
+export interface JobApplication {
+  id?: number;
+  job_id: number;
+  employee_id?: number;
+  employee_name?: string;
+  employee_email?: string;
+  job_title?: string;
+  company?: string;
+  location?: string;
+  status?: string;
+  applied_at?: string;
+  updated_at?: string;
+  cover_letter?: string;
+}
+
+// Get all jobs with optional filters
+export async function getJobs(filters?: { title?: string; location?: string; job_type?: string }) {
+  const queryParams = new URLSearchParams();
+  
+  if (filters?.title) queryParams.append('title', filters.title);
+  if (filters?.location) queryParams.append('location', filters.location);
+  if (filters?.job_type) queryParams.append('job_type', filters.job_type);
+  
+  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/jobs${queryString}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    throw error;
+  }
+}
+
+// Get a single job by ID
+export async function getJob(jobId: number) {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/jobs/${jobId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching job ${jobId}:`, error);
+    throw error;
+  }
+}
+
+// Create a new job
+export async function createJob(jobData: Job) {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/jobs`,
+      jobData,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating job:', error);
+    throw error;
+  }
+}
+
+// Update an existing job
+export async function updateJob(jobId: number, jobData: Partial<Job>) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/jobs/${jobId}`,
+      jobData,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating job ${jobId}:`, error);
+    throw error;
+  }
+}
+
+// Delete a job
+export async function deleteJob(jobId: number) {
+  try {
+    const response = await axios.delete(
+      `${API_BASE_URL}/api/jobs/${jobId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting job ${jobId}:`, error);
+    throw error;
+  }
+}
+
+// Get all jobs posted by the current employer
+export async function getEmployerJobs() {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/employer/jobs`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching employer jobs:', error);
+    throw error;
+  }
+}
+
+// Apply for a job
+export async function applyForJob(jobId: number, coverLetter?: string) {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/jobs/${jobId}/apply`,
+      { cover_letter: coverLetter },
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error applying for job ${jobId}:`, error);
+    throw error;
+  }
+}
+
+// Get all applications for a specific job (for employers)
+export async function getJobApplications(jobId: number) {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/jobs/${jobId}/applications`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching applications for job ${jobId}:`, error);
+    throw error;
+  }
+}
+
+// Get all applications by the current employee
+export async function getEmployeeApplications() {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/employee/applications`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching employee applications:', error);
+    throw error;
+  }
+}
+
+// Update application status (for employers)
+export async function updateApplicationStatus(applicationId: number, status: 'pending' | 'invited' | 'rejected') {
+  try {
+    const response = await axios.patch(
+      `${API_BASE_URL}/api/applications/${applicationId}/status`,
+      { status },
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating application ${applicationId} status:`, error);
+    throw error;
+  }
+}
