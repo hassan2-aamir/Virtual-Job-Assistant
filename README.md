@@ -98,7 +98,7 @@ Below are some screenshots showcasing the features of the project:
 
 #### Resume Builder
 ![Resume Builder](./demo/job_assistant5.png)
-![Resume Builder PDF](./demo/job_assistant-6.png)
+![Resume Builder PDF](./demo/job_assistant6.png)
 
 
 #### Resume Polisher
