@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from app import db
 from app.models.user import User
 from app.models.job import Job, JobApplication
@@ -6,6 +6,9 @@ from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 import json
+import os
+from werkzeug.utils import secure_filename
+import uuid
 
 # Create a model for Job
 from flask_sqlalchemy import SQLAlchemy
@@ -286,13 +289,38 @@ def apply_for_job(job_id):
         if existing_application:
             return jsonify({'error': 'You have already applied for this job'}), 400
         
-        data = request.json or {}
+        # Process form data
+        cover_letter = ''
+        resume_file_path = None
+        
+        if request.is_json:
+            # Handle JSON data (cover letter only)
+            data = request.json or {}
+            cover_letter = data.get('cover_letter', '')
+        else:
+            # Handle multipart form data (cover letter + file)
+            cover_letter = request.form.get('cover_letter', '')
+            
+            if 'resume_file' in request.files:
+                file = request.files['resume_file']
+                if file and file.filename:
+                    # Generate unique filename
+                    filename = secure_filename(file.filename)
+                    unique_filename = f"{uuid.uuid4()}_{filename}"
+                    
+                    # Save file
+                    file_path = os.path.join(current_app.config['RESUME_UPLOADS'], unique_filename)
+                    file.save(file_path)
+                    
+                    # Store relative path in database
+                    resume_file_path = f"resumes/{unique_filename}"
         
         # Create job application
         application = JobApplication(
             job_id=job_id,
             employee_id=int(current_user_id),
-            cover_letter=data.get('cover_letter', '')
+            cover_letter=cover_letter,
+            resume_file=resume_file_path
         )
         
         # Add to database
@@ -307,6 +335,46 @@ def apply_for_job(job_id):
         db.session.rollback()
         current_app.logger.error(f"Error applying for job: {str(e)}")
         return jsonify({'error': f'Error applying for job: {str(e)}'}), 500
+    
+
+
+@job_bp.route('/api/applications/<int:application_id>/resume', methods=['GET'])
+@jwt_required()
+def download_resume(application_id):
+    try:
+        # Get the current user's ID from JWT
+        current_user_id = get_jwt_identity()
+        if not isinstance(current_user_id, str):
+            return jsonify({"msg": "Subject must be a string"}), 422
+        
+        # Find the application
+        application = JobApplication.query.get(application_id)
+        if not application:
+            return jsonify({'error': 'Application not found'}), 404
+        
+        # Find the job
+        job = Job.query.get(application.job_id)
+        if not job:
+            return jsonify({'error': 'Job not found'}), 404
+        
+        # Check if the user is the employer who created this job or the employee who applied
+        if int(current_user_id) != job.employer_id and int(current_user_id) != application.employee_id:
+            return jsonify({'error': 'You are not authorized to access this file'}), 403
+        
+        # Check if resume file exists
+        if not application.resume_file:
+            return jsonify({'error': 'No resume file found for this application'}), 404
+        
+        # Get filename from path
+        filename = os.path.basename(application.resume_file)
+        directory = os.path.join(current_app.config['UPLOAD_FOLDER'], os.path.dirname(application.resume_file))
+        
+        # Return the file
+        return send_from_directory(directory, filename, as_attachment=True)
+    except Exception as e:
+        current_app.logger.error(f"Error downloading resume: {str(e)}")
+        return jsonify({'error': f'Error downloading resume: {str(e)}'}), 500
+    
 
 # Get all applications for a specific job (requires employer authentication)
 @job_bp.route('/api/jobs/<int:job_id>/applications', methods=['GET'])
@@ -343,7 +411,8 @@ def get_job_applications(job_id):
                 'status': application.status,
                 'applied_at': application.applied_at.isoformat(),
                 'updated_at': application.updated_at.isoformat() if application.updated_at else None,
-                'cover_letter': application.cover_letter
+                'cover_letter': application.cover_letter,
+                'has_resume_file': bool(application.resume_file)  
             })
         
         return jsonify(applications_list)
@@ -369,7 +438,6 @@ def get_employee_applications():
         # Get all applications for this employee
         applications = JobApplication.query.filter_by(employee_id=int(current_user_id)).all()
         
-        # Convert to JSON with job details
         applications_list = []
         for application in applications:
             job = Job.query.get(application.job_id)
@@ -381,14 +449,15 @@ def get_employee_applications():
                 'location': job.location if job else '',
                 'status': application.status,
                 'applied_at': application.applied_at.isoformat(),
-                'updated_at': application.updated_at.isoformat() if application.updated_at else None
+                'updated_at': application.updated_at.isoformat() if application.updated_at else None,
+                'has_resume_file': bool(application.resume_file) 
             })
         
         return jsonify(applications_list)
     except Exception as e:
         current_app.logger.error(f"Error getting employee applications: {str(e)}")
         return jsonify({'error': f'Error getting employee applications: {str(e)}'}), 500
-
+    
 # Update application status (requires employer authentication)
 @job_bp.route('/api/applications/<int:application_id>/status', methods=['PATCH'])
 @jwt_required()

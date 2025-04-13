@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { getEmployerJobs, deleteJob, updateJob, getJobApplications, updateApplicationStatus, Job, JobApplication } from '@/lib/api'
+import { getEmployerJobs, deleteJob, updateJob, getJobApplications, updateApplicationStatus, downloadResumeFile, Job, JobApplication } from '@/lib/api'
 import { Table, Button, Typography, Tag, Space, Modal, message, Spin, Tabs, Form, Input, Select } from 'antd'
-import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons'
+import { EditOutlined, DeleteOutlined, EyeOutlined, DownloadOutlined } from '@ant-design/icons'
+
 
 const { Title, Text, Paragraph } = Typography
 const { TextArea } = Input
@@ -135,7 +136,14 @@ const MyJobsPage: React.FC = () => {
       setUpdateStatusLoading(null)
     }
   }
-
+  const handleDownloadResume = async (applicationId: number) => {
+    try {
+      await downloadResumeFile(applicationId)
+    } catch (error) {
+      message.error('Failed to download resume file')
+      console.error(error)
+    }
+  }
   const columns = [
     {
       title: 'Title',
@@ -238,6 +246,20 @@ const MyJobsPage: React.FC = () => {
         <Tag color={statusColors[status as keyof typeof statusColors] || 'default'}>
           {status === 'invited' ? 'Invited for Interview' : status.charAt(0).toUpperCase() + status.slice(1)}
         </Tag>
+      )
+    },
+    {
+      title: 'Resume',
+      key: 'resume',
+      render: (_: any, record: JobApplication) => (
+        <Button
+          type="link"
+          icon={<DownloadOutlined />}
+          disabled={!record.has_resume_file}
+          onClick={() => handleDownloadResume(record.id as number)}
+        >
+          {record.has_resume_file ? 'Download' : 'No Resume'}
+        </Button>
       )
     },
     {

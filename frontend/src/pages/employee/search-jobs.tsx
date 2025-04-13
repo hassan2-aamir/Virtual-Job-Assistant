@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { getJobs, applyForJob, Job } from '@/lib/api'
-import { Button, Card, Input, Select, Space, Typography, message, Modal, Form, Spin } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import { Button, Card, Input, Select, Space, Typography, message, Modal, Form, Spin, Upload } from 'antd'
+import { SearchOutlined, UploadOutlined } from '@ant-design/icons'
 
 const { Title, Text, Paragraph } = Typography
 const { TextArea } = Input
@@ -17,6 +17,7 @@ const SearchJobsPage: React.FC = () => {
   const [applyModalVisible, setApplyModalVisible] = useState(false)
   const [applying, setApplying] = useState(false)
   const [form] = Form.useForm()
+  const [resumeFile, setResumeFile] = useState<File | null>(null)
 
   const fetchJobs = async () => {
     try {
@@ -49,25 +50,60 @@ const SearchJobsPage: React.FC = () => {
     setApplyModalVisible(true)
   }
 
+  const handleFileChange = (info: any) => {
+    if (info.file) {
+      setResumeFile(info.file);
+    }
+  };
+
   const handleApplySubmit = async () => {
     if (!selectedJob) return
     
     try {
       setApplying(true)
       const values = await form.validateFields()
-      await applyForJob(selectedJob.id as number, values.coverLetter)
+      await applyForJob(selectedJob.id as number, values.coverLetter, resumeFile || undefined)
       message.success('Application submitted successfully!')
       setApplyModalVisible(false)
       form.resetFields()
-    } catch (error) {
-      if (error instanceof Error) {
-        message.error(`Failed to apply: ${error.message}`)
+      setResumeFile(null)
+    } catch (error: any) {
+      console.error('Application error:', error); // Log the entire error object
+      
+      // Check for axios error response
+      if (error.response) {
+        console.log('Error response status:', error.response.status);
+        console.log('Error response data:', error.response.data);
+        
+        if (error.response.status === 404) {
+          message.error('Job listing not found. It may have been removed.');
+        } else if (error.response.status === 400) {
+          // Make sure we're displaying any 400 error message that comes back
+          const errorMsg = error.response.data?.error || 'Bad request';
+          if (errorMsg === 'You have already applied for this job') {
+            message.warning('You have already applied for this job.');
+            alert('You have already applied for this job.'); // Show alert to the user
+
+          } else {
+            message.error(`Application failed: ${errorMsg}`);
+          }
+        } else if (error.response.status === 403) {
+          message.error('You are not authorized to apply for this job.');
+        } else {
+          message.error(`Application failed: ${error.response.data?.error || 'Unknown error'}`);
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        message.error('No response received from the server. Please try again later.');
+      } else if (error.message) {
+        // Something else happened in setting up the request
+        message.error(`Failed to apply: ${error.message}`);
       } else {
-        message.error('Failed to apply for job')
+        // Fallback error message
+        message.error('Failed to apply for job');
       }
-      console.error(error)
     } finally {
-      setApplying(false)
+      setApplying(false);
     }
   }
 
@@ -165,7 +201,7 @@ const SearchJobsPage: React.FC = () => {
         </div>
       )}
 
-      <Modal
+<Modal
         title="Apply for Job"
         open={applyModalVisible}
         onCancel={() => setApplyModalVisible(false)}
@@ -189,6 +225,22 @@ const SearchJobsPage: React.FC = () => {
               rules={[{ required: false }]}
             >
               <TextArea rows={6} placeholder="Introduce yourself and explain why you're a good fit for this position..." />
+            </Form.Item>
+            
+            <Form.Item
+              name="resumeFile"
+              label="Resume Attachment (Optional)"
+              rules={[{ required: false }]}
+              extra="Accepted formats: PDF, DOC, DOCX"
+            >
+              <Upload
+                beforeUpload={() => false}
+                maxCount={1}
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx"
+              >
+                <Button icon={<UploadOutlined />}>Upload Resume</Button>
+              </Upload>
             </Form.Item>
           </Form>
         )}

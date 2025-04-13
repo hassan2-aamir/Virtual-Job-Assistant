@@ -31,6 +31,7 @@ class JobApplication(db.Model):
     applied_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     cover_letter = db.Column(db.Text)
+    resume_file = db.Column(db.String(255)) 
     
     # Define relationship to Job for easier querying
     job = db.relationship('Job', backref='applications')

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { getEmployeeApplications, JobApplication } from '@/lib/api'
-import { Card, Typography, Tag, Spin, Empty, message } from 'antd'
+import { getEmployeeApplications, downloadResumeFile, JobApplication } from '@/lib/api'
+import { Card, Typography, Tag, Spin, Empty, message, Button } from 'antd'
+import { DownloadOutlined } from '@ant-design/icons'
 
 const { Title, Text } = Typography
 
@@ -49,6 +50,15 @@ const MyApplicationsPage: React.FC = () => {
     return <Tag color={color}>{text}</Tag>
   }
 
+  const handleDownloadResume = async (applicationId: number) => {
+    try {
+      await downloadResumeFile(applicationId)
+    } catch (error) {
+      message.error('Failed to download resume file')
+      console.error(error)
+    }
+  }
+  
   return (
     <div className="p-6">
       <Title level={2}>My Applications</Title>

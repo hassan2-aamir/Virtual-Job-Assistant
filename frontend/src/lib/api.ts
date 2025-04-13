@@ -366,6 +366,7 @@ export interface JobApplication {
   applied_at?: string;
   updated_at?: string;
   cover_letter?: string;
+  has_resume_file?: boolean;
 }
 
 // Get all jobs with optional filters
@@ -473,18 +474,38 @@ export async function getEmployerJobs() {
 }
 
 // Apply for a job
-export async function applyForJob(jobId: number, coverLetter?: string) {
+export async function applyForJob(jobId: number, coverLetter?: string, resumeFile?: File) {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/jobs/${jobId}/apply`,
-      { cover_letter: coverLetter },
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+    // If there's a file, use FormData
+    if (resumeFile) {
+      const formData = new FormData();
+      if (coverLetter) formData.append('cover_letter', coverLetter);
+      formData.append('resume_file', resumeFile);
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/api/jobs/${jobId}/apply`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data'
+          }
         }
-      }
-    );
-    return response.data;
+      );
+      return response.data;
+    } else {
+      // No file, use JSON
+      const response = await axios.post(
+        `${API_BASE_URL}/api/jobs/${jobId}/apply`,
+        { cover_letter: coverLetter },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      return response.data;
+    }
   } catch (error) {
     console.error(`Error applying for job ${jobId}:`, error);
     throw error;
@@ -542,6 +563,35 @@ export async function updateApplicationStatus(applicationId: number, status: 'pe
     return response.data;
   } catch (error) {
     console.error(`Error updating application ${applicationId} status:`, error);
+    throw error;
+  }
+}
+
+// Add a function to download resume file
+export async function downloadResumeFile(applicationId: number) {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/applications/${applicationId}/resume`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        responseType: 'blob'
+      }
+    );
+    
+    // Create a download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `resume_${applicationId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    return true;
+  } catch (error) {
+    console.error(`Error downloading resume for application ${applicationId}:`, error);
     throw error;
   }
 }
