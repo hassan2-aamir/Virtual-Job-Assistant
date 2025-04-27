@@ -1,13 +1,14 @@
-import { Outlet, useNavigate } from "react-router-dom"
-import { useAuth } from "../auth/auth-provider"
-import { EmployeeSidebar } from "./employee-sidebar"
-import { EmployerSidebar } from "./employer-sidebar"
-import { UserNav } from "./user-nav"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/auth-provider";
+import { EmployeeSidebar } from "./employee-sidebar";
+import { EmployerSidebar } from "./employer-sidebar";
+import { UserNav } from "./user-nav";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/ui/toggle"; // Import ThemeToggle here
 
 export function AppLayout() {
-  const { user, isLoading } = useAuth()
-  const navigate = useNavigate()
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   // Show loading state
   if (isLoading) {
@@ -15,13 +16,13 @@ export function AppLayout() {
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   // Redirect to login if not authenticated
   if (!user) {
-    navigate("/login")
-    return null
+    navigate("/login");
+    return null;
   }
 
   // Render appropriate sidebar based on user role
@@ -32,6 +33,8 @@ export function AppLayout() {
         <header className="flex h-16 items-center gap-4 border-b bg-background px-6">
           <div className="ml-auto flex items-center gap-4">
             <UserNav />
+            {/* Add the ThemeToggle component here */}
+            <ThemeToggle />
           </div>
         </header>
         <main className="flex-1 p-6">
@@ -39,6 +42,5 @@ export function AppLayout() {
         </main>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
-

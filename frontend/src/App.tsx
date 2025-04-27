@@ -7,7 +7,8 @@ import { useAuth } from "./components/auth/auth-provider"
 import { AppLayout } from "./components/layout/app-layout"
 import LoginPage from "./pages/login"
 import SignupPage from "./pages/signup"
-import ChangePasswordPage from "./pages/changepassword";
+import ChangePasswordPage from "./pages/changepassword"
+import { ThemeProvider } from "./components/theme/theme-provider"
 
 
 // Employee pages
@@ -51,6 +52,8 @@ function ProtectedRoute({
 
 function App() {
   return (
+    <ThemeProvider  defaultTheme="system">
+
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
@@ -94,6 +97,7 @@ function App() {
 
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
+    </ThemeProvider>
   )
 }
 

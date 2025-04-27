@@ -1,54 +1,54 @@
-import React, { useState, useEffect } from 'react'
-import { getJobs, applyForJob, Job } from '@/lib/api'
-import { Button, Card, Input, Select, Space, Typography, message, Modal, Form, Spin, Upload } from 'antd'
-import { SearchOutlined, UploadOutlined } from '@ant-design/icons'
+import React, { useState, useEffect } from 'react';
+import { getJobs, applyForJob, Job } from '@/lib/api';
+import { Button, Card, Input, Select, Space, Typography, message, Modal, Form, Spin, Upload } from 'antd';
+import { SearchOutlined, UploadOutlined } from '@ant-design/icons';
 
-const { Title, Text, Paragraph } = Typography
-const { TextArea } = Input
-const { Option } = Select
+const { Title, Text, Paragraph } = Typography;
+const { TextArea } = Input;
+const { Option } = Select;
 
 const SearchJobsPage: React.FC = () => {
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTitle, setSearchTitle] = useState('')
-  const [searchLocation, setSearchLocation] = useState('')
-  const [searchJobType, setSearchJobType] = useState('')
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
-  const [applyModalVisible, setApplyModalVisible] = useState(false)
-  const [applying, setApplying] = useState(false)
-  const [form] = Form.useForm()
-  const [resumeFile, setResumeFile] = useState<File | null>(null)
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTitle, setSearchTitle] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
+  const [searchJobType, setSearchJobType] = useState('');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [applyModalVisible, setApplyModalVisible] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [form] = Form.useForm();
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   const fetchJobs = async () => {
     try {
-      setLoading(true)
-      const filters: { title?: string; location?: string; job_type?: string } = {}
-      if (searchTitle) filters.title = searchTitle
-      if (searchLocation) filters.location = searchLocation
-      if (searchJobType) filters.job_type = searchJobType
-      
-      const jobsData = await getJobs(filters)
-      setJobs(jobsData)
+      setLoading(true);
+      const filters: { title?: string; location?: string; job_type?: string } = {};
+      if (searchTitle) filters.title = searchTitle;
+      if (searchLocation) filters.location = searchLocation;
+      if (searchJobType) filters.job_type = searchJobType;
+
+      const jobsData = await getJobs(filters);
+      setJobs(jobsData);
     } catch (error) {
-      message.error('Failed to fetch jobs')
-      console.error(error)
+      message.error('Failed to fetch jobs');
+      console.error(error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchJobs()
-  }, [])
+    fetchJobs();
+  }, []);
 
   const handleSearch = () => {
-    fetchJobs()
-  }
+    fetchJobs();
+  };
 
   const handleApply = (job: Job) => {
-    setSelectedJob(job)
-    setApplyModalVisible(true)
-  }
+    setSelectedJob(job);
+    setApplyModalVisible(true);
+  };
 
   const handleFileChange = (info: any) => {
     if (info.file) {
@@ -57,24 +57,24 @@ const SearchJobsPage: React.FC = () => {
   };
 
   const handleApplySubmit = async () => {
-    if (!selectedJob) return
-    
+    if (!selectedJob) return;
+
     try {
-      setApplying(true)
-      const values = await form.validateFields()
-      await applyForJob(selectedJob.id as number, values.coverLetter, resumeFile || undefined)
-      message.success('Application submitted successfully!')
-      setApplyModalVisible(false)
-      form.resetFields()
-      setResumeFile(null)
+      setApplying(true);
+      const values = await form.validateFields();
+      await applyForJob(selectedJob.id as number, values.coverLetter, resumeFile || undefined);
+      message.success('Application submitted successfully!');
+      setApplyModalVisible(false);
+      form.resetFields();
+      setResumeFile(null);
     } catch (error: any) {
       console.error('Application error:', error); // Log the entire error object
-      
+
       // Check for axios error response
       if (error.response) {
         console.log('Error response status:', error.response.status);
         console.log('Error response data:', error.response.data);
-        
+
         if (error.response.status === 404) {
           message.error('Job listing not found. It may have been removed.');
         } else if (error.response.status === 400) {
@@ -83,7 +83,6 @@ const SearchJobsPage: React.FC = () => {
           if (errorMsg === 'You have already applied for this job') {
             message.warning('You have already applied for this job.');
             alert('You have already applied for this job.'); // Show alert to the user
-
           } else {
             message.error(`Application failed: ${errorMsg}`);
           }
@@ -105,7 +104,7 @@ const SearchJobsPage: React.FC = () => {
     } finally {
       setApplying(false);
     }
-  }
+  };
 
   return (
     <div className="p-6">
@@ -113,7 +112,7 @@ const SearchJobsPage: React.FC = () => {
 
       <div className="bg-white p-4 rounded shadow mb-6">
         <Space direction="vertical" size="middle" className="w-full">
-            <Space wrap>
+          <Space wrap>
             <Input
               placeholder="Job Title"
               value={searchTitle}
@@ -142,7 +141,7 @@ const SearchJobsPage: React.FC = () => {
             <Button type="primary" onClick={handleSearch}>
               Search
             </Button>
-            </Space>
+          </Space>
         </Space>
       </div>
 
@@ -151,57 +150,61 @@ const SearchJobsPage: React.FC = () => {
           <Spin size="large" />
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="job-grid">
           {jobs.length === 0 ? (
             <div className="text-center py-8">
               <Text>No jobs found matching your criteria.</Text>
             </div>
           ) : (
             jobs.map((job) => (
-              <Card key={job.id} className="w-full">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <Title level={4}>{job.title}</Title>
-                    <Text strong>{job.company}</Text>
-                    <div className="mt-1">
-                      <Text type="secondary">{job.location}</Text>
-                      {job.job_type && (
-                        <Text type="secondary" className="ml-4">
-                          {job.job_type}
-                        </Text>
-                      )}
-                      {job.salary && (
-                        <Text type="secondary" className="ml-4">
-                          {job.salary}
-                        </Text>
-                      )}
-                    </div>
+              <div key={job.id} className="job-card">
+              <div className="job-card-inner">
+                <div className="job-card-front">
+                  <Title level={4}>{job.title}</Title>
+                  <Text strong>{job.company}</Text>
+                  <div className="mt-1">
+                    <Text type="secondary">{job.location}</Text>
+                    {job.job_type && (
+                      <Text type="secondary" className="ml-4">
+                        {job.job_type}
+                      </Text>
+                    )}
+                    {job.salary && (
+                      <Text type="secondary" className="ml-4 job-card-salary">
+                        {job.salary}
+                      </Text>
+                    )}
                   </div>
-                  <Button type="primary" onClick={() => handleApply(job)}>
+                  {/* Removed Apply button from front */}
+                </div>
+                <div className="job-card-back">
+                  <Paragraph className="job-card-description" ellipsis={{ rows: 3, expandable: true, symbol: 'more' }}>
+                    {job.description}
+                  </Paragraph>
+                  {job.requirements && (
+                    <div className="mt-2">
+                      <Text strong>Requirements:</Text>
+                      <Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+                        {job.requirements}
+                      </Paragraph>
+                    </div>
+                  )}
+                  <Text type="secondary" className="text-xs">
+                    Posted: {new Date(job.created_at || '').toLocaleDateString()}
+                  </Text>
+                  <Button type="primary" onClick={() => handleApply(job)} className="apply-button">
                     Apply
                   </Button>
                 </div>
-                <Paragraph className="mt-4" ellipsis={{ rows: 3, expandable: true, symbol: 'more' }}>
-                  {job.description}
-                </Paragraph>
-                {job.requirements && (
-                  <div className="mt-2">
-                    <Text strong>Requirements:</Text>
-                    <Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
-                      {job.requirements}
-                    </Paragraph>
-                  </div>
-                )}
-                <Text type="secondary" className="text-xs">
-                  Posted: {new Date(job.created_at || '').toLocaleDateString()}
-                </Text>
-              </Card>
+              </div>
+            </div>
+            
             ))
           )}
         </div>
       )}
 
-<Modal
+      <Modal
         title="Apply for Job"
         open={applyModalVisible}
         onCancel={() => setApplyModalVisible(false)}
@@ -214,39 +217,27 @@ const SearchJobsPage: React.FC = () => {
           </Button>,
         ]}
       >
-        {selectedJob && (
-          <Form form={form} layout="vertical">
-            <div className="mb-4">
-              <Text strong>Job:</Text> {selectedJob.title} at {selectedJob.company}
-            </div>
-            <Form.Item
-              name="coverLetter"
-              label="Cover Letter (Optional)"
-              rules={[{ required: false }]}
+        <Form form={form} layout="vertical" name="applyForm">
+          <Form.Item
+            label="Cover Letter"
+            name="coverLetter"
+            rules={[{ required: true, message: 'Please enter your cover letter!' }]}
+          >
+            <TextArea rows={4} />
+          </Form.Item>
+          <Form.Item label="Resume">
+            <Upload
+              beforeUpload={() => false} // Prevent automatic upload
+              onChange={handleFileChange}
+              accept=".pdf,.doc,.docx"
             >
-              <TextArea rows={6} placeholder="Introduce yourself and explain why you're a good fit for this position..." />
-            </Form.Item>
-            
-            <Form.Item
-              name="resumeFile"
-              label="Resume Attachment (Optional)"
-              rules={[{ required: false }]}
-              extra="Accepted formats: PDF, DOC, DOCX"
-            >
-              <Upload
-                beforeUpload={() => false}
-                maxCount={1}
-                onChange={handleFileChange}
-                accept=".pdf,.doc,.docx"
-              >
-                <Button icon={<UploadOutlined />}>Upload Resume</Button>
-              </Upload>
-            </Form.Item>
-          </Form>
-        )}
+              <Button icon={<UploadOutlined />}>Upload Resume</Button>
+            </Upload>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default SearchJobsPage
+export default SearchJobsPage;
