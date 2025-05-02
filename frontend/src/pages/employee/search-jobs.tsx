@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { getJobs, applyForJob, Job } from '@/lib/api';
+import { getJobs, applyForJob, Job  } from '@/lib/api';
 import { Button, Card, Input, Select, Space, Typography, message, Modal, Form, Spin, Upload } from 'antd';
 import { SearchOutlined, UploadOutlined } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+
 
 const SearchJobsPage: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -38,8 +39,12 @@ const SearchJobsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchJobs();
-  }, []);
+    const timeout = setTimeout(() => {
+      fetchJobs();
+    }, 500); // Wait 500ms after last input change
+  
+    return () => clearTimeout(timeout); // Cleanup if input changes again quickly
+  }, [searchTitle, searchLocation, searchJobType]);
 
   const handleSearch = () => {
     fetchJobs();
