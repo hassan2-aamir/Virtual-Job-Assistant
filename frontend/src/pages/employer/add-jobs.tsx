@@ -35,7 +35,7 @@ const AddJobsPage: React.FC = () => {
     <div className="p-6">
       <Title level={2}>Create Job Listing</Title>
 
-      <div className="bg-white p-6 rounded shadow">
+      <div className="job-form-container p-6 rounded shadow">
         <Form
           form={form}
           layout="vertical"

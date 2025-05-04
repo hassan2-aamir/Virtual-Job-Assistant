@@ -166,13 +166,14 @@
   height: 100%;
   backface-visibility: hidden;
   border-radius: 12px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--card);
+  border: 1px solid var(--border);
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  color: var(--card-foreground);
 }
 
 .job-card-back {
@@ -206,11 +207,12 @@
 .job-card-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #333;
+  color: var(--card-foreground);
+  
 }
 
 .job-card-salary {
-  color: #6b7280;
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
@@ -218,13 +220,15 @@
 .job-card-description {
   font-size: 0.875rem;
   line-height: 1.5;
-  color: #6b7280;
+  color: var(--muted-foreground);
   margin-top: 1rem;
+  overflow-y: auto;
+
 }
 
 .job-card-requirements {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--muted-foreground);
   margin-top: 1rem;
   line-height: 1.5;
 }
@@ -251,6 +255,185 @@
 
 .text-xs {
   font-size: 0.75rem;
-  color: #aaa;
+  color: var(--muted-foreground);
 }
 
+/* For dark mode: make headings white */
+.dark .ant-typography, 
+.dark .ant-typography h1, 
+.dark .ant-typography h2, 
+.dark .ant-typography h3, 
+.dark .ant-typography h4, 
+.dark .ant-typography h5, 
+.dark .ant-typography h6 {
+  color: #fff !important;
+}
+
+/* For light mode: make headings black */
+.ant-typography, 
+.ant-typography h1, 
+.ant-typography h2, 
+.ant-typography h3, 
+.ant-typography h4, 
+.ant-typography h5, 
+.ant-typography h6 {
+  color: #111 !important;
+}
+
+.job-form-container,
+.ant-modal-content,
+.ant-card {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-radius: var(--radius);
+  border: 1px solid var(--border) !important;
+  /* Optional: adjust box-shadow for dark mode */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+
+.ant-typography,
+.ant-typography p,
+.ant-typography span {
+  color: var(--card-foreground);
+}
+.dark .ant-typography,
+.dark .ant-typography p,
+.dark .ant-typography span {
+  color: var(--card-foreground);
+}
+
+/* Light mode */
+.ant-input,
+.ant-select-selector,
+.ant-input-affix-wrapper {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Placeholder color */
+.ant-input::placeholder {
+  color: var(--muted-foreground) !important;
+  opacity: 1;
+}
+
+/* Dark mode */
+.dark .ant-input,
+.dark .ant-select-selector,
+.dark .ant-input-affix-wrapper {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .ant-input::placeholder {
+  color: var(--muted-foreground) !important;
+  opacity: 1;
+}
+
+.ant-btn-primary {
+  background-color: #1890ff;
+  color: #fff;
+  border: none;
+}
+.dark .ant-btn-primary {
+  background-color: #1677ff;
+  color: #fff;
+  border: none;
+}
+
+/* For Ant Design Input Group and Search */
+.ant-input-group,
+.ant-input-search {
+  background-color: var(--card) !important;
+}
+
+/* For the input inside the search bar */
+.ant-input-group .ant-input,
+.ant-input-search .ant-input {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* For dark mode */
+.dark .ant-input-group,
+.dark .ant-input-search {
+  background-color: var(--card) !important;
+}
+
+.dark .ant-input-group .ant-input,
+.dark .ant-input-search .ant-input {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Ensure all cards, forms, tables, and modals use theme backgrounds and text */
+.ant-card,
+.ant-card-body,
+.ant-form,
+.ant-form-item,
+.ant-table,
+.ant-table-thead > tr > th,
+.ant-table-tbody > tr > td,
+.ant-modal-content,
+.job-form-container {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* For dark mode, ensure the same */
+.dark .ant-card,
+.dark .ant-card-body,
+.dark .ant-form,
+.dark .ant-form-item,
+.dark .ant-table,
+.dark .ant-table-thead > tr > th,
+.dark .ant-table-tbody > tr > td,
+.dark .ant-modal-content,
+.dark .job-form-container {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Table header text color */
+.ant-table-thead > tr > th,
+.dark .ant-table-thead > tr > th {
+  color: var(--card-foreground) !important;
+}
+
+/* Table row hover */
+.ant-table-tbody > tr:hover > td,
+.dark .ant-table-tbody > tr:hover > td {
+  background: var(--muted) !important;
+}
+
+/* Optional: fix input backgrounds inside forms */
+.ant-form input,
+.ant-form textarea,
+.ant-form .ant-select-selector {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+.dark .ant-form input,
+.dark .ant-form textarea,
+.dark .ant-form .ant-select-selector {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Light mode: use card-foreground for label color */
+.ant-form-item-label > label {
+  color: var(--card-foreground) !important;
+}
+
+/* Dark mode: use card-foreground for label color */
+.dark .ant-form-item-label > label {
+  color: var(--card-foreground) !important;
+}

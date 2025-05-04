@@ -115,7 +115,7 @@ const SearchJobsPage: React.FC = () => {
     <div className="p-6">
       <Title level={2}>Search Jobs</Title>
 
-      <div className="bg-white p-4 rounded shadow mb-6">
+      <div className="job-form-container p-4 rounded shadow mb-6">
         <Space direction="vertical" size="middle" className="w-full">
           <Space wrap>
             <Input
