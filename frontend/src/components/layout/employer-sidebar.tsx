@@ -10,9 +10,11 @@ import {
   SidebarTrigger,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useSidebar } from "../ui/sidebar"  // Assuming you have the Sidebar context
 
 export function EmployerSidebar() {
   const location = useLocation()
+  const { state } = useSidebar()  // Get the sidebar state from context
 
   const routes = [
     {
@@ -31,16 +33,23 @@ export function EmployerSidebar() {
     <Sidebar>
       <SidebarHeader className="flex items-center px-4 py-2">
         <SidebarTrigger />
-        <h1 className="ml-2 text-xl font-bold">Job Portal</h1>
+        {/* Conditionally render the Job Portal text */}
+        {state === "expanded" && (
+          <h1 className="ml-2 text-xl font-bold">Job Portal</h1>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
           {routes.map((route) => (
             <SidebarMenuItem key={route.href}>
-              <SidebarMenuButton asChild isActive={location.pathname === route.href} tooltip={route.title}>
+              <SidebarMenuButton
+                asChild
+                isActive={location.pathname === route.href}
+                tooltip={route.title}
+              >
                 <Link to={route.href}>
                   <route.icon className="h-4 w-4" />
-                  <span>{route.title}</span>
+                  {state === "expanded" && <span>{route.title}</span>}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -51,4 +60,3 @@ export function EmployerSidebar() {
     </Sidebar>
   )
 }
-
