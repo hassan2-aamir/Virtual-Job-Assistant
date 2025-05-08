@@ -2,6 +2,10 @@
 
 This repository contains a comprehensive project designed to assist users in building, polishing, and managing resumes and cover letters. The project is built with a modern tech stack, including React, TypeScript, Vite, and Python, and integrates AI-powered tools for resume enhancement.
 
+## Demo
+https://virtual-job-assistant.vercel.app/ 
+
+
 ## Features
 
 - **Resume Builder**: Create and manage resumes with an intuitive interface.
