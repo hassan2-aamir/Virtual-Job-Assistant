@@ -20,3 +20,4 @@ requests==2.31.0
 
 # Optional dependencies
 gradio==4.8.0  # For AI interface
+gunicorn==21.2.0  # For production server
