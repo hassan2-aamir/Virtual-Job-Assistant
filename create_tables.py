@@ -16,8 +16,7 @@ DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_NAME = os.getenv("DB_NAME", "job_portal")
 
 # Create database connection string
-DATABASE_URL = 'mysql+pymysql://uxjkyec2fycipb43:UZfvFepYxNPCGzBpxM4C@bzy1cbpckydkg4d3gpf3-mysql.services.clever-cloud.com:3306/bzy1cbpckydkg4d3gpf3'
-
+DATABASE_URL = os.getenv("DATABASE_URL", f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
 # Create engine and base
 engine = create_engine(DATABASE_URL)
 Base = declarative_base()
