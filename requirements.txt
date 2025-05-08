@@ -1,1 +1,22 @@
-flask f
+# Flask and related extensions
+flask==2.3.3
+flask-cors==4.0.0
+flask-sqlalchemy==3.1.1
+flask-jwt-extended==4.5.2
+
+# Database
+pymysql==1.1.0
+SQLAlchemy==2.0.20
+
+# AI and PDF handling
+openai==1.6.1
+reportlab==4.0.4
+PyPDF2==3.0.1
+
+# Utilities
+python-dotenv==1.0.0
+werkzeug==2.3.7
+requests==2.31.0
+
+# Optional dependencies
+gradio==4.8.0  # For AI interface
