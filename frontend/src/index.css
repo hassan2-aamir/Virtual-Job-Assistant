@@ -223,6 +223,7 @@
   color: var(--muted-foreground);
   margin-top: 1rem;
   overflow-y: auto;
+  max-height: 120px;
 
 }
 
@@ -231,6 +232,7 @@
   color: var(--muted-foreground);
   margin-top: 1rem;
   line-height: 1.5;
+  max-height: 100px;
   overflow-y: auto;
 }
 
