@@ -56,17 +56,20 @@ https://virtual-job-assistant.vercel.app/
 
 3. Install backend dependencies:
     ```bash
-    cd ../app
+    cd ..
+    python -m venv venv
+    source venv/bin/activate
     pip install -r requirements.txt
     ```
 
 4. Set up the database:
-    - Create a MySQL database.
+    - Create a MySQL database
     - Run the SQL script in `database script.sql` to set up tables.
 
 5. Configure environment variables:
     - Create a `.env` file in the `app` directory.
     - Add your `API_KEY` and database credentials.
+    - we provided a .envexample file to help you set it up
 
 6. Start the development servers:
     - Frontend:
@@ -76,8 +79,9 @@ https://virtual-job-assistant.vercel.app/
       ```
     - Backend:
       ```bash
-      cd ../app
-      python resume_polisher.py
+      cd Virtual-Job-Assistant
+      source venv/bin/activate
+      python run.py
       ```
 
 ## Usage
