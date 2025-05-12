@@ -189,7 +189,7 @@ const SearchJobsPage: React.FC = () => {
                   {job.requirements && (
                     <div className="mt-2">
                       <Text strong>Requirements:</Text>
-                      <Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+                      <Paragraph className="job-card-requirements" ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
                         {job.requirements}
                       </Paragraph>
                     </div>

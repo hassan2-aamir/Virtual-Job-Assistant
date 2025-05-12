@@ -178,7 +178,16 @@
 
 .job-card-back {
   transform: rotateY(180deg);
-  padding-top: 2rem; /* Adjusted to provide spacing for button */
+  padding-top: 1.5rem; /* Adjusted to provide spacing for button */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto; /* Change from auto to hidden */
+
+}
+
+.job-card-back > div {
+  margin-bottom: 0.75rem;
 }
 
 .job-card-front {
@@ -217,22 +226,50 @@
   margin-top: 0.5rem;
 }
 
-.job-card-description {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--muted-foreground);
-  margin-top: 1rem;
-  overflow-y: auto;
-  max-height: 120px;
-
-}
-
+/* Style for both sections */
+.job-card-description,
 .job-card-requirements {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
-  margin-top: 1rem;
   line-height: 1.5;
-  max-height: 100px;
+  color: var(--muted-foreground);
+  margin-top: 0.5rem;
+  max-height: 80px !important; /* Adjusted height for better content fit */
+  overflow-y: auto;
+  display: block !important;
+  padding-right: 0.25rem; /* Space for scrollbar */
+}
+
+
+/* Ensure expanded typography elements work correctly */
+.ant-typography-expand {
+  display: inline-block !important;
+  margin-top: 0.5rem !important;
+}
+
+/* Handling expanded state for both sections independently */
+.job-card-description.ant-typography-ellipsis-expanded,
+.job-card-requirements.ant-typography-ellipsis-expanded {
+  height: 110px !important; /* Fixed height when expanded */
+  max-height: 110px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Ensure the text rendering is consistent */
+.ant-typography-ellipsis-single-line {
+  display: block !important;
+  white-space: normal !important;
+}
+
+/* Remove styling from expanded buttons */
+.ant-typography-expand {
+  color: #1890ff !important;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+/* Prevent expanded content from pushing other content */
+.job-card-back {
   overflow-y: auto;
 }
 
