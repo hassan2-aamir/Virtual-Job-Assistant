@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token"); // Clear token
-    window.location.href = "/login"; // Redirect to login
+    window.location.href = "/"; // Redirect to login
   };
  
 
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout(); // Log out the user after switching roles
 
   
-      navigate("/login");
+      navigate("/");
       
     } catch (error) {
       console.error('Failed to switch role:', error); // Log the error if the API call fails
