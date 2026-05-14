@@ -44,7 +44,7 @@ https://virtual-job-assistant.vercel.app/
 ### Steps
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-repo/SE_Project.git
+    git clone https://github.com/hassan2-aamir/Virtual-Job-Assistant.git
     cd SE_Project
     ```
 
