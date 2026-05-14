@@ -13,7 +13,7 @@ from reportlab.lib import colors
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
-MODEL_ID = "deepseek/deepseek-r1-distill-llama-70b:free"
+MODEL_ID = "openai/gpt-oss-120b:free"
 
 
 # Function to polish the resume using the model
@@ -32,7 +32,7 @@ def polish_resume(position_name, resume_content, polish_prompt="", format="text"
     
     # Request payload
     payload = {
-    "model": "deepseek/deepseek-r1-distill-llama-70b:free",
+    "model": "openai/gpt-oss-120b:free",
     "messages": [
       {
         "role": "user",

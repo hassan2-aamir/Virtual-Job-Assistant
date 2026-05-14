@@ -6,7 +6,7 @@ import gradio as gr
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
-MODEL_ID = "deepseek/deepseek-r1-distill-llama-70b:free"
+MODEL_ID = "openai/gpt-oss-120b:free"
 
 def generate_cover_letter(company_name, position_name, job_description, resume_content):
     # Headers for authentication

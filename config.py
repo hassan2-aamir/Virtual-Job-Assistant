@@ -6,7 +6,7 @@ load_dotenv()
 
 class Config:
     # URI for the MySQL Database
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "mysql+pymysql://root:@localhost/job_portal")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "mysql+pymysql://root:abcxyz123098@localhost:3306/job_finder")
     # Disable SQLAlchemy event system to save memory and improve performance
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
